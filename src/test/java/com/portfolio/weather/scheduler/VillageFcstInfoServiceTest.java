@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.weather.scheduler.data.type.FileType;
+import com.portfolio.weather.scheduler.exception.ApiException;
 import com.portfolio.weather.scheduler.mapper.VillageForecastMapper;
 import com.portfolio.weather.scheduler.service.VillageFcstInfoService;
 import org.junit.jupiter.api.DisplayName;
@@ -16,19 +17,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -108,10 +109,9 @@ class VillageFcstInfoServiceTest {
             assertThat(result).isFalse();
             verify(vfMapper, never()).mergeLatestVersion(any());
         }
-    }
 
-    private String createMockResponseJson(String version, String fileType) {
-        return String.format("""
+        private String createMockResponseJson(String version, String fileType) {
+            return String.format("""
             {
                 "response": {
                     "header": {
@@ -131,30 +131,197 @@ class VillageFcstInfoServiceTest {
                 }
             }
             """, version, fileType);
+        }
+
+        private Map<String, Object> createMockParsedResponse(String version, String fileType) {
+            // API 응답 구조에 맞게 Map 생성
+            Map<String, Object> response = new HashMap<>();
+            Map<String, Object> header = new HashMap<>();
+            Map<String, Object> body = new HashMap<>();
+            Map<String, Object> items = new HashMap<>();
+            List<Map<String, Object>> itemList = new ArrayList<>();
+            Map<String, Object> item = new HashMap<>();
+
+            item.put("version", version);
+            item.put("filetype", fileType);
+            itemList.add(item);
+            items.put("item", itemList);
+            body.put("items", items);
+            header.put("resultCode", "00");
+
+            response.put("header", header);
+            response.put("body", body);
+
+            Map<String, Object> root = new HashMap<>();
+            root.put("response", response);
+
+            return root;
+        }
     }
 
-    private Map<String, Object> createMockParsedResponse(String version, String fileType) {
-        // API 응답 구조에 맞게 Map 생성
-        Map<String, Object> response = new HashMap<>();
-        Map<String, Object> header = new HashMap<>();
-        Map<String, Object> body = new HashMap<>();
-        Map<String, Object> items = new HashMap<>();
-        List<Map<String, Object>> itemList = new ArrayList<>();
-        Map<String, Object> item = new HashMap<>();
+    @Nested
+    @DisplayName("단기예보 조회 및 저장")
+    class FetchAndSaveShrtTest {
+        
+        @Test
+        @DisplayName("정상적인 API 응답을 받아 DB에 저장해야 한다")
+        void shouldSaveValidForecastData() throws JsonProcessingException {
+            // given
+            String nx = "67";
+            String ny = "101";
+            LocalDateTime now = LocalDateTime.now();
+            
+            // API 응답 모킹
+            String mockResponseBody = createMockShrtResponseJson();
+            ResponseEntity<String> mockResponse = ResponseEntity.ok(mockResponseBody);
+            when(restTemplate.getForEntity(anyString(), eq(String.class))).thenReturn(mockResponse);
+            
+            Map<String, Object> mockParsedResponse = createMockShrtParsedResponse();
+            when(objectMapper.readValue(eq(mockResponseBody), any(TypeReference.class)))
+                    .thenReturn(mockParsedResponse);
 
-        item.put("version", version);
-        item.put("filetype", fileType);
-        itemList.add(item);
-        items.put("item", itemList);
-        body.put("items", items);
-        header.put("resultCode", "00");
+            // when
+            villageFcstInfoService.fetchAndSaveShrt(nx, ny);
 
-        response.put("header", header);
-        response.put("body", body);
+            // then
+            verify(vfMapper, times(2)).mergeShrt(argThat(forecast -> 
+                forecast.get("nx").equals(nx) &&
+                forecast.get("ny").equals(ny) &&
+                forecast.containsKey("baseDate") &&
+                forecast.containsKey("baseTime") &&
+                forecast.containsKey("fcstDate") &&
+                forecast.containsKey("fcstTime") &&
+                forecast.containsKey("category") &&
+                forecast.containsKey("fcstValue")
+            ));
+        }
 
-        Map<String, Object> root = new HashMap<>();
-        root.put("response", response);
+        @Test
+        @DisplayName("API 에러 응답시 예외가 발생해야 한다")
+        void shouldThrowExceptionOnApiError() throws JsonProcessingException {
+            // given
+            String nx = "67";
+            String ny = "101";
+            
+            String mockResponseBody = createErrorResponseJson();
+            ResponseEntity<String> mockResponse = ResponseEntity.ok(mockResponseBody);
+            when(restTemplate.getForEntity(anyString(), eq(String.class))).thenReturn(mockResponse);
+            
+            Map<String, Object> mockErrorResponse = createMockErrorResponse();
+            when(objectMapper.readValue(eq(mockResponseBody), any(TypeReference.class)))
+                    .thenReturn(mockErrorResponse);
 
-        return root;
+            // when & then
+            assertThatThrownBy(() -> villageFcstInfoService.fetchAndSaveShrt(nx, ny))
+                    .isInstanceOf(ApiException.class)
+                    .hasMessageContaining("API 응답 에러");
+            
+            verify(vfMapper, never()).mergeShrt(any());
+        }
+
+        private String createMockShrtResponseJson() {
+            return """
+                {
+                    "response": {
+                        "header": {
+                            "resultCode": "00",
+                            "resultMsg": "NORMAL_SERVICE"
+                        },
+                        "body": {
+                            "items": {
+                                "item": [
+                                    {
+                                        "baseDate": "20240312",
+                                        "baseTime": "0500",
+                                        "category": "TMP",
+                                        "fcstDate": "20240312",
+                                        "fcstTime": "0600",
+                                        "fcstValue": "12"
+                                    },
+                                    {
+                                        "baseDate": "20240312",
+                                        "baseTime": "0500",
+                                        "category": "REH",
+                                        "fcstDate": "20240312",
+                                        "fcstTime": "0600",
+                                        "fcstValue": "85"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+                """;
+        }
+
+        private Map<String, Object> createMockShrtParsedResponse() {
+            Map<String, Object> response = new HashMap<>();
+            Map<String, Object> header = new HashMap<>();
+            Map<String, Object> body = new HashMap<>();
+            Map<String, Object> items = new HashMap<>();
+            List<Map<String, Object>> itemList = new ArrayList<>();
+            
+            // TMP 데이터
+            Map<String, Object> tmp = new HashMap<>();
+            tmp.put("baseDate", "20240312");
+            tmp.put("baseTime", "0500");
+            tmp.put("category", "TMP");
+            tmp.put("fcstDate", "20240312");
+            tmp.put("fcstTime", "0600");
+            tmp.put("fcstValue", "12");
+            
+            // REH 데이터
+            Map<String, Object> reh = new HashMap<>();
+            reh.put("baseDate", "20240312");
+            reh.put("baseTime", "0500");
+            reh.put("category", "REH");
+            reh.put("fcstDate", "20240312");
+            reh.put("fcstTime", "0600");
+            reh.put("fcstValue", "85");
+            
+            itemList.add(tmp);
+            itemList.add(reh);
+            items.put("item", itemList);
+            body.put("items", items);
+            header.put("resultCode", "00");
+            header.put("resultMsg", "NORMAL_SERVICE");
+            
+            Map<String, Object> headerBody = new HashMap<>();
+            headerBody.put("header", header);
+            headerBody.put("body", body);
+            response.put("response", headerBody);
+            
+            return response;
+        }
+
+        private String createErrorResponseJson() {
+            return """
+                {
+                    "response": {
+                        "header": {
+                            "resultCode": "03",
+                            "resultMsg": "NO_DATA"
+                        },
+                        "body": null
+                    }
+                }
+                """;
+        }
+
+        private Map<String, Object> createMockErrorResponse() {
+            Map<String, Object> response = new HashMap<>();
+            Map<String, Object> header = new HashMap<>();
+            header.put("resultCode", "03");
+            header.put("resultMsg", "NO_DATA");
+            
+            Map<String, Object> headerBody = new HashMap<>();
+            headerBody.put("header", header);
+            headerBody.put("body", null);
+            response.put("response", headerBody);
+            
+            return response;
+        }
     }
+
+
 }

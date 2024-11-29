@@ -8,4 +8,6 @@ import java.util.Map;
 public interface VillageForecastMapper {
     Map<String, Object> getLatestVersionByFileType(String fileType);
     int mergeLatestVersion(Map<String, Object> params);
+
+    void mergeShrt(Map<String, Object> forecast);
 }

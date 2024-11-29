@@ -1,11 +1,14 @@
 package com.portfolio.weather.scheduler;
 
+import com.portfolio.weather.scheduler.data.DaejeonCoordinate;
 import com.portfolio.weather.scheduler.data.type.FileType;
 import com.portfolio.weather.scheduler.service.VillageFcstInfoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WeatherScheduler {
@@ -18,8 +21,15 @@ public class WeatherScheduler {
      * */ 
     @Scheduled(cron = "0 13 */3 * * *")
     public void executeVillageForecast(){
-        if(!villageFcstInfoService.isLatestVersion(FileType.SHRT)){
-
+        // 대전시 모든 좌표에 대해 예보 조회
+        for (DaejeonCoordinate coord : DaejeonCoordinate.values()) {
+            try {
+                villageFcstInfoService.fetchAndSaveShrt(coord.getNx(), coord.getNy());
+                log.info("단기예보 조회 완료 - 좌표: ({}, {})", coord.getNx(), coord.getNy());
+            } catch (Exception e) {
+                // 한 좌표에서 잘못되더라도 나머지는 실행하도록
+                log.error("단기예보 조회 실패 - 좌표: ({}, {}), 에러: {}", coord.getNx(), coord.getNy(), e.getMessage());
+            }
         }
     }
 
