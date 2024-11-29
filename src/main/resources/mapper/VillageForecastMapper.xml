@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portfolio.weather.scheduler.mapper.VillageForecastMapper">
+    <select id="getLatestVersionByFileType" resultType="map">
+        SELECT 
+            version,
+            file_type as fileType,
+        FROM village_forecast_version
+        WHERE file_type = #{fileType}
+        ORDER BY version DESC
+        LIMIT 1
+    </select>
+
+    <insert id="mergeLatestVersion" parameterType="map">
+        /* H2 Database */
+    <if test="_databaseId == 'h2'">
+        MERGE INTO village_forecast_version KEY(file_type)
+        VALUES (
+            #{version}, 
+            #{fileType},
+            CURRENT_TIMESTAMP
+        )
+    </if>
+    
+    /* PostgreSQL */
+    <if test="_databaseId == 'postgresql'">
+        INSERT INTO village_forecast_version (
+            version, file_type
+        ) VALUES (
+            #{version}, 
+            #{fileType},
+        ) ON CONFLICT (file_type) DO UPDATE SET 
+            version = EXCLUDED.version,
+            created_at = CURRENT_TIMESTAMP
+        </if>
+    </insert>
+
+</mapper>
