@@ -53,7 +53,7 @@ class VillageFcstInfoServiceTest {
         @DisplayName("API 버전이 DB 버전보다 높을 때 true를 반환하고 DB를 업데이트해야 한다")
         void shouldUpdateAndReturnTrueWhenNewVersionExists() throws JsonProcessingException {
             // given
-            FileType fileType = FileType.SHRT;
+            FileType fileType = FileType.ODAM;
             String dbVersion = "202403110800";
             String apiVersion = "202403111400";
 
@@ -86,7 +86,7 @@ class VillageFcstInfoServiceTest {
         @DisplayName("API 버전이 DB 버전과 같을 때 false를 반환해야 한다")
         void shouldReturnFalseWhenVersionsAreEqual() throws JsonProcessingException {
             // given
-            FileType fileType = FileType.SHRT;
+            FileType fileType = FileType.ODAM;
             String version = "202403111400";
 
             Map<String, Object> dbVersionInfo = new HashMap<>();

@@ -1,9 +1,12 @@
 package com.portfolio.weather.scheduler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.weather.scheduler.data.type.ApiResponseCode;
 import com.portfolio.weather.scheduler.data.type.FileType;
+import com.portfolio.weather.scheduler.exception.ApiException;
+import com.portfolio.weather.scheduler.utils.BaseDateTimeUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,20 +36,24 @@ public class VillageFcstInfoServiceApiTest {
 
     @Value("${kweather.service.VilageFcstInfoService_2.getFcstVersion}")
     private String getFcstVersionUrl;
+
+    @Value("${kweather.service.VilageFcstInfoService_2.getVillageFcst}")
+    private String getVillageFcstUrl;
     
     @Test
     @DisplayName("버전 조회 테스트 - 메시지 명세 확인")
     void getVersionFromRealApi() {
 
         // given
-        FileType ft = FileType.SHRT;
+        FileType ft = FileType.ODAM;
         String apiUrl = getFcstVersionUrl +
                 "?serviceKey=" + serviceKey +
                 "&pageNo=1" +
                 "&numOfRows=10" +
                 "&dataType=JSON" +
-                "&basedatetime=" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm")) +
+                "&basedatetime=" + BaseDateTimeUtil.getBaseDateTime(LocalDateTime.now()) +
                 "&ftype=" + ft.name();
+        System.out.println("apiUrl : " + apiUrl);
 
         // when
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
@@ -104,5 +111,44 @@ public class VillageFcstInfoServiceApiTest {
         } catch (Exception e) {
             fail("JSON 파싱 실패: " + e.getMessage());
         }
+    }
+
+    @Test
+    @DisplayName("단기예보 조회 테스트 - 메시지 명세 확인")
+    void getVillageFcstFromRealApi() {
+        // given
+        String nx = "67";
+        String ny = "101";
+
+        LocalDateTime now = LocalDateTime.now();
+        String apiUrl = getVillageFcstUrl +
+                "?serviceKey=" + serviceKey +
+                "&numOfRows=10" +
+                "&pageNo=1" +
+                "&dataType=JSON" +
+                "&base_date=" + BaseDateTimeUtil.getBaseDate(now) +
+                "&base_time=" + BaseDateTimeUtil.getBaseTime(now) +
+                "&nx=" + nx +
+                "&ny=" + ny;
+        System.out.println("apiUrl : " + apiUrl);
+        // when
+
+        ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
+        System.out.println("response : " + response);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> responseMap = objectMapper.readValue(
+                    response.getBody(),
+                    new TypeReference<Map<String, Object>>() {}
+            );
+            System.out.println(responseMap.get("response"));
+        } catch (JsonProcessingException e) {
+            throw new ApiException("JSON 파싱 실패", e);
+        }
+
+
+
+
     }
 }
