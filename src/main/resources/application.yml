@@ -1,7 +1,6 @@
 spring:
   application:
     name: weather
-    
-logging:
-  level:
-    org.springframework.batch: DEBUG
+  profiles:
+    active: local
+
