@@ -32,21 +32,4 @@ public class WeatherScheduler {
             }
         }
     }
-
-    /** 초단기실황 
-     * 매시간 정시에 생성되고 10분마다 최신 정보로 업데이트
-    */
-    @Scheduled(cron = "0 15 */1 * * *")
-    public void executeUltraShortObservation(){
-        if(!villageFcstInfoService.isLatestVersion(FileType.ODAM)){
-
-        }
-    }
-    /** 초단기예보 */
-    @Scheduled(cron = "0 33 */1 * * *")
-    public void executeUltraShortForecast(){
-        if(!villageFcstInfoService.isLatestVersion(FileType.VSRT)){
-
-        }
-    }
 }

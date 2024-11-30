@@ -11,6 +11,7 @@ import com.portfolio.weather.scheduler.mapper.VillageForecastMapper;
 import com.portfolio.weather.scheduler.utils.BaseDateTimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,6 @@ public class VillageFcstInfoService {
     private String getFcstVersionUrl;
     @Value("${kweather.service.VilageFcstInfoService_2.getVillageFcst}")
     private String getVillageFcstUrl;
-    @Value("${kweather.service.VilageFcstInfoService_2.getUltraSrtFcst}")
-    private String getUltraSrtFcstUrl;
-    @Value("${kweather.service.VilageFcstInfoService_2.getUltraSrtNcst}")
-    private String getUltraSrtNcstUrl;
 
     @SuppressWarnings("unchecked")
     public void fetchAndSaveShrt(String nx, String ny){
@@ -103,6 +100,8 @@ public class VillageFcstInfoService {
                     vfMapper.mergeShrt(forecast);
                 } catch (IllegalArgumentException e) {
                     log.warn("알 수 없는 category: {}", category);
+                } catch (PersistenceException e){
+                    log.error("DB 저장 중 에러 발생 - category: {}, error: {}", category, e.getMessage());
                 }
             });
         } catch (JsonProcessingException e) {
