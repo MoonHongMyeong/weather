@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portfolio.weather.scheduler.mapper.MidForecastMapper">
+    <insert id="mergeMidLandFcst" parameterType="map">
+        /* H2 Database */
+        <if test="_databaseId == 'h2'">
+            MERGE INTO mid_land_forecast AS target
+            USING (VALUES (
+                #{regId},
+                #{rnSt4Am}, #{rnSt4Pm},
+                #{rnSt5Am}, #{rnSt5Pm},
+                #{rnSt6Am}, #{rnSt6Pm},
+                #{rnSt7Am}, #{rnSt7Pm},
+                #{wf4Am}, #{wf4Pm},
+                #{wf5Am}, #{wf5Pm},
+                #{wf6Am}, #{wf6Pm},
+                #{wf7Am}, #{wf7Pm},
+                CURRENT_TIMESTAMP
+            )) AS source (
+                reg_id,
+                rn_st4_am, rn_st4_pm,
+                rn_st5_am, rn_st5_pm,
+                rn_st6_am, rn_st6_pm,
+                rn_st7_am, rn_st7_pm,
+                wf4_am, wf4_pm,
+                wf5_am, wf5_pm,
+                wf6_am, wf6_pm,
+                wf7_am, wf7_pm,
+                updated_at
+            )
+            ON target.reg_id = source.reg_id
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    rn_st4_am = source.rn_st4_am, rn_st4_pm = source.rn_st4_pm,
+                    rn_st5_am = source.rn_st5_am, rn_st5_pm = source.rn_st5_pm,
+                    rn_st6_am = source.rn_st6_am, rn_st6_pm = source.rn_st6_pm,
+                    rn_st7_am = source.rn_st7_am, rn_st7_pm = source.rn_st7_pm,
+                    wf4_am = source.wf4_am, wf4_pm = source.wf4_pm,
+                    wf5_am = source.wf5_am, wf5_pm = source.wf5_pm,
+                    wf6_am = source.wf6_am, wf6_pm = source.wf6_pm,
+                    wf7_am = source.wf7_am, wf7_pm = source.wf7_pm,
+                    updated_at = source.updated_at
+            WHEN NOT MATCHED THEN
+                INSERT (reg_id,
+                       rn_st4_am, rn_st4_pm, rn_st5_am, rn_st5_pm,
+                       rn_st6_am, rn_st6_pm, rn_st7_am, rn_st7_pm,
+                       wf4_am, wf4_pm, wf5_am, wf5_pm,
+                       wf6_am, wf6_pm, wf7_am, wf7_pm,
+                       created_at, updated_at)
+                VALUES (source.reg_id,
+                       source.rn_st4_am, source.rn_st4_pm, source.rn_st5_am, source.rn_st5_pm,
+                       source.rn_st6_am, source.rn_st6_pm, source.rn_st7_am, source.rn_st7_pm,
+                       source.wf4_am, source.wf4_pm, source.wf5_am, source.wf5_pm,
+                       source.wf6_am, source.wf6_pm, source.wf7_am, source.wf7_pm,
+                       source.updated_at, source.updated_at)
+        </if>
+
+        /* PostgreSQL */
+        <if test="_databaseId == 'postgresql'">
+            INSERT INTO mid_land_forecast (
+                reg_id,
+                rn_st4_am, rn_st4_pm, rn_st5_am, rn_st5_pm,
+                rn_st6_am, rn_st6_pm, rn_st7_am, rn_st7_pm,
+                wf4_am, wf4_pm, wf5_am, wf5_pm,
+                wf6_am, wf6_pm, wf7_am, wf7_pm,
+                created_at, updated_at
+            ) VALUES (
+                #{regId},
+                #{rnSt4Am}, #{rnSt4Pm}, #{rnSt5Am}, #{rnSt5Pm},
+                #{rnSt6Am}, #{rnSt6Pm}, #{rnSt7Am}, #{rnSt7Pm},
+                #{wf4Am}, #{wf4Pm}, #{wf5Am}, #{wf5Pm},
+                #{wf6Am}, #{wf6Pm}, #{wf7Am}, #{wf7Pm},
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+            ) ON CONFLICT (reg_id) DO UPDATE SET
+                rn_st4_am = EXCLUDED.rn_st4_am, rn_st4_pm = EXCLUDED.rn_st4_pm,
+                rn_st5_am = EXCLUDED.rn_st5_am, rn_st5_pm = EXCLUDED.rn_st5_pm,
+                rn_st6_am = EXCLUDED.rn_st6_am, rn_st6_pm = EXCLUDED.rn_st6_pm,
+                rn_st7_am = EXCLUDED.rn_st7_am, rn_st7_pm = EXCLUDED.rn_st7_pm,
+                wf4_am = EXCLUDED.wf4_am, wf4_pm = EXCLUDED.wf4_pm,
+                wf5_am = EXCLUDED.wf5_am, wf5_pm = EXCLUDED.wf5_pm,
+                wf6_am = EXCLUDED.wf6_am, wf6_pm = EXCLUDED.wf6_pm,
+                wf7_am = EXCLUDED.wf7_am, wf7_pm = EXCLUDED.wf7_pm,
+                updated_at = CURRENT_TIMESTAMP
+        </if>
+    </insert>
+
+    <insert id="mergeMidTempFcst" parameterType="map">
+        /* H2 Database */
+        <if test="_databaseId == 'h2'">
+            MERGE INTO mid_temp_forecast AS target
+            USING (VALUES (
+                #{regId},
+                #{taMin4}, #{taMax4},
+                #{taMin5}, #{taMax5},
+                #{taMin6}, #{taMax6},
+                #{taMin7}, #{taMax7},
+                CURRENT_TIMESTAMP
+            )) AS source (
+                reg_id,
+                ta_min4, ta_max4,
+                ta_min5, ta_max5,
+                ta_min6, ta_max6,
+                ta_min7, ta_max7,
+                updated_at
+            )
+            ON target.reg_id = source.reg_id
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    ta_min4 = source.ta_min4, ta_max4 = source.ta_max4,
+                    ta_min5 = source.ta_min5, ta_max5 = source.ta_max5,
+                    ta_min6 = source.ta_min6, ta_max6 = source.ta_max6,
+                    ta_min7 = source.ta_min7, ta_max7 = source.ta_max7,
+                    updated_at = source.updated_at
+            WHEN NOT MATCHED THEN
+                INSERT (reg_id,
+                       ta_min4, ta_max4, ta_min5, ta_max5,
+                       ta_min6, ta_max6, ta_min7, ta_max7,
+                       created_at, updated_at)
+                VALUES (source.reg_id,
+                       source.ta_min4, source.ta_max4, source.ta_min5, source.ta_max5,
+                       source.ta_min6, source.ta_max6, source.ta_min7, source.ta_max7,
+                       source.updated_at, source.updated_at)
+        </if>
+
+        /* PostgreSQL */
+        <if test="_databaseId == 'postgresql'">
+            INSERT INTO mid_temp_forecast (
+                reg_id,
+                ta_min4, ta_max4, ta_min5, ta_max5,
+                ta_min6, ta_max6, ta_min7, ta_max7,
+                created_at, updated_at
+            ) VALUES (
+                #{regId},
+                #{taMin4}, #{taMax4}, #{taMin5}, #{taMax5},
+                #{taMin6}, #{taMax6}, #{taMin7}, #{taMax7},
+                CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+            ) ON CONFLICT (reg_id) DO UPDATE SET
+                ta_min4 = EXCLUDED.ta_min4, ta_max4 = EXCLUDED.ta_max4,
+                ta_min5 = EXCLUDED.ta_min5, ta_max5 = EXCLUDED.ta_max5,
+                ta_min6 = EXCLUDED.ta_min6, ta_max6 = EXCLUDED.ta_max6,
+                ta_min7 = EXCLUDED.ta_min7, ta_max7 = EXCLUDED.ta_max7,
+                updated_at = CURRENT_TIMESTAMP
+        </if>
+    </insert>
+</mapper>

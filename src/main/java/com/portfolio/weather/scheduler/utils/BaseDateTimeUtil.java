@@ -38,7 +38,17 @@ public class BaseDateTimeUtil {
             case 17, 18, 19 -> AnnounceTime.H17.getStrTime();
             case 20, 21, 22 -> AnnounceTime.H20.getStrTime();
             case 23, 0, 1 -> AnnounceTime.H23.getStrTime();
-            default -> throw new RuntimeException("시간 치환에 문제가 생겼습니다.");
+            default -> throw new RuntimeException("시간 치환에 문제가 생겼습니다 : getBaseTimeSHRT : " + currentHour);
+        };
+    }
+
+    public static String getBaseTimeMidFcst(LocalDateTime now) {
+        int currentHour = now.getHour();
+        return switch (currentHour){
+            case 0, 1, 2, 3, 4, 5 -> now.minusDays(1).withHour(18).withMinute(0).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            case 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 -> now.withHour(6).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            case 18, 19, 20, 21, 22, 23 -> now.withHour(18).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+            default -> throw new IllegalStateException("시간 치환에 문제가 있습니다 : getBaseTimeMidFcst : " + currentHour);
         };
     }
 }

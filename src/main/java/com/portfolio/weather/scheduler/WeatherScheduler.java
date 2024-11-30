@@ -2,6 +2,7 @@ package com.portfolio.weather.scheduler;
 
 import com.portfolio.weather.scheduler.data.DaejeonCoordinate;
 import com.portfolio.weather.scheduler.data.type.FileType;
+import com.portfolio.weather.scheduler.service.MidFcstInfoService;
 import com.portfolio.weather.scheduler.service.VillageFcstInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class WeatherScheduler {
     private final VillageFcstInfoService villageFcstInfoService;
+    private final MidFcstInfoService midFcstInfoService;
 
-    /** 
+    /**
      * 단기예보
      * - 발표시각 02:00, 05:00, 08:00, 11:00, 14:00, 17:00, 20:00, 23:00 (1일 8회)
      * - API 제공 시간(~이후) : 02:10, 05:10, 08:10, 11:10, 14:10, 17:10, 20:10, 23:10
@@ -32,4 +34,42 @@ public class WeatherScheduler {
             }
         }
     }
+
+    /**
+     * 중기예보(중기육상예보조회)
+     * */
+    @Scheduled(cron = "0 30 6/12 * * *")
+    public void executeMidLandForecast(){
+        String DAEJEON_CODE = "11C20401";
+        midFcstInfoService.fetchAndSaveMidLandForecast(DAEJEON_CODE);
+    }
+
+    /**
+     * 중기예보(중기기온조회)
+     * */
+    @Scheduled(cron = "0 15 6/12 * * *")
+    public void executeMidTemperature(){
+        String DAEJEON_CODE = "11C20401";
+        midFcstInfoService.fetchAndSaveMidTempForecast(DAEJEON_CODE);
+    }
+
+    /**
+     * 기상특보
+     * */
+
+    /**
+     * 레이더영상
+     * */
+
+    /**
+     * 위성영상
+     * */
+
+    /**
+     * 낙뢰분포도
+     * */
+
+    /**
+     * 생활지수
+     * */
 }
