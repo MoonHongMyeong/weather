@@ -1,5 +1,7 @@
 package com.portfolio.weather.scheduler.utils;
 
+import com.portfolio.weather.scheduler.data.type.AnnounceTime;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -15,6 +17,9 @@ public class BaseDateTimeUtil {
     }
 
     public static String getBaseDate(LocalDateTime now) {
+        if ( now.getHour() < 2 ){
+            now = now.minusDays(1);
+        }
         return now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 
@@ -24,25 +29,16 @@ public class BaseDateTimeUtil {
 
     public static String getBaseTimeSHRT(LocalDateTime now) {
         int currentHour = now.getHour();
-        switch (currentHour){
-            case 1, 2, 3:
-                return "0200";
-            case 4, 5, 6:
-                return "0500";
-            case 7, 8, 9:
-                return "0800";
-            case 10, 11, 12:
-                return "1100";
-            case 13, 14, 15:
-                return "1400";
-            case 16, 17, 18:
-                return "1700";
-            case 19, 20, 21:
-                return "2000";
-            case 22, 23, 0:
-                return "2300";
-            default:
-                throw new RuntimeException("시간 치환에 문제가 생겼습니다.");
-        }
+        return switch (currentHour) {
+            case 2, 3, 4 -> AnnounceTime.H02.getStrTime();
+            case 5, 6, 7 -> AnnounceTime.H05.getStrTime();
+            case 8, 9, 10 -> AnnounceTime.H08.getStrTime();
+            case 11, 12, 13 -> AnnounceTime.H11.getStrTime();
+            case 14, 15, 16 -> AnnounceTime.H14.getStrTime();
+            case 17, 18, 19 -> AnnounceTime.H17.getStrTime();
+            case 20, 21, 22 -> AnnounceTime.H20.getStrTime();
+            case 23, 0, 1 -> AnnounceTime.H23.getStrTime();
+            default -> throw new RuntimeException("시간 치환에 문제가 생겼습니다.");
+        };
     }
 }
