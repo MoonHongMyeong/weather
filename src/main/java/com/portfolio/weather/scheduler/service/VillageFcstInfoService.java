@@ -40,6 +40,7 @@ public class VillageFcstInfoService {
     @Value("${kweather.service.VilageFcstInfoService_2.getUltraSrtNcst}")
     private String getUltraSrtNcstUrl;
 
+    @SuppressWarnings("unchecked")
     public void fetchAndSaveShrt(String nx, String ny){
         int SHRT_ROWS = 14;
         // 1. API 조회
