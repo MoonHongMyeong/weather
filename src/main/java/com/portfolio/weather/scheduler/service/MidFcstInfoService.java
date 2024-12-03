@@ -24,17 +24,17 @@ public class MidFcstInfoService {
     private final RestTemplate restTemplate;
     private final ApiResponseParser apiResponseParser;
 
-    @Value("${kweather.api.service-key.decoding-key}")
-    private String serviceKey;
-    @Value("${kweather.service.MidFcstInfoService.getMidLandFcst}")
-    private String getMidLandFcst;
-    @Value("${kweather.service.MidFcstInfoService.getMidTa}")
-    private String getMidTa;
+    @Value("${kweather.api-hub.auth-key}")
+    private String AUTH_KEY;
+    @Value("${kweather.service.MidForecastService.landForecast}")
+    private String LAND_FORECAST_URL;
+    @Value("${kweather.service.MidForecastService.tempForecast}")
+    private String TEMP_FORECAST_URL;
 
     public void fetchAndSaveMidLandForecast(String locationCode) {
         // 1. API 호출
-        String apiUrl = getMidLandFcst +
-                "?serviceKey=" + serviceKey +
+        String apiUrl = LAND_FORECAST_URL +
+                "?authKey=" + AUTH_KEY +
                 "&pageNo=1" +
                 "&numOfRows=10" +
                 "&dataType=JSON" +
@@ -77,8 +77,8 @@ public class MidFcstInfoService {
 
     public void fetchAndSaveMidTempForecast(String locationCode) {
         // 1. API 호출
-        String apiUrl = getMidTa +
-                "?serviceKey=" + serviceKey +
+        String apiUrl = TEMP_FORECAST_URL +
+                "?authKey=" + AUTH_KEY +
                 "&pageNo=1" +
                 "&numOfRows=10" +
                 "&dataType=JSON" +

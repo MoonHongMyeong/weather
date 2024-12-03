@@ -27,20 +27,18 @@ public class VillageFcstInfoService {
     private final RestTemplate restTemplate;
     private final ApiResponseParser apiResponseParser;
 
-    @Value("${kweather.api.service-key.decoding-key}")
-    private String serviceKey;
-    @Value("${kweather.service.VilageFcstInfoService_2.getFcstVersion}")
-    private String getFcstVersionUrl;
-    @Value("${kweather.service.VilageFcstInfoService_2.getVillageFcst}")
-    private String getVillageFcstUrl;
+    @Value("${kweather.api-hub.auth-key}")
+    private String AUTH_KEY;
+    @Value("${kweather.service.villageForecastService.villageForecast}")
+    private String VILLAGE_FORECAST_URL;
 
     public void fetchAndSaveShrt(String nx, String ny) {
         int SHRT_ROWS = 14;
         // 1. API 호출
         LocalDateTime now = LocalDateTime.now();
         int numOfRows = SHRT_ROWS * 3; // 3시간 후까지 조회
-        String apiUrl = getVillageFcstUrl +
-                "?serviceKey=" + serviceKey +
+        String apiUrl = VILLAGE_FORECAST_URL +
+                "?authKey=" + AUTH_KEY +
                 "&numOfRows=" + numOfRows +
                 "&pageNo=1" +
                 "&dataType=JSON" +
@@ -83,49 +81,5 @@ public class VillageFcstInfoService {
                     category, e.getMessage());
             }
         });
-    }
-
-    public boolean isLatestVersion(FileType fileType) {
-        try {
-            // 1. DB에서 최신 버전 조회
-            Map<String, Object> latestVersion = vfMapper.getLatestVersionByFileType(fileType.name());
-
-            // 2. API에서 현재 버전 조회
-            String apiUrl = getFcstVersionUrl +
-                    "?serviceKey=" + serviceKey +
-                    "&pageNo=1" +
-                    "&numOfRows=10" +
-                    "&dataType=JSON" +
-                    "&basedatetime=" + BaseDateTimeUtil.getBaseDateTime(LocalDateTime.now()) +
-                    "&ftype=" + fileType.name();
-            ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
-
-            // 3. 응답 파싱
-            List<Map<String, Object>> itemList = apiResponseParser.parseResponse(response);
-
-            // 4. 버전 비교 및 업데이트
-            String dbVersion = (String) latestVersion.get("version");
-            String apiVersion = (String) itemList.get(0).get("version");
-
-            if (apiVersion.compareTo(dbVersion) > 0) {
-                log.info("새로운 버전이 있습니다. DB: {}, API: {}", dbVersion, apiVersion);
-                
-                Map<String, Object> newVersion = new HashMap<>();
-                newVersion.put("version", apiVersion);
-                newVersion.put("fileType", fileType.name());
-
-                vfMapper.mergeLatestVersion(newVersion);
-                log.info("새로운 버전 정보가 저장되었습니다. version: {}", apiVersion);
-            
-                return true;
-            }
-
-            log.info("최신 버전입니다. version: {}", dbVersion);
-            return false;
-
-        } catch (Exception e) {
-            log.error("버전 체크 중 에러 발생: {}", e.getMessage(), e);
-            throw new ApiException("버전 체크 실패", e);
-        }
     }
 }
