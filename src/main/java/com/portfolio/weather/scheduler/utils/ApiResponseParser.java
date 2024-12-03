@@ -65,13 +65,18 @@ public class ApiResponseParser {
         }
 
         // 헤더 추출 (두 번째 줄에서 # 제거 후 콤마로 분리)
-        String[] headers = lines[1].substring(1).trim().split(",");
+        String[] headers = lines[1].substring(1).trim()
+                // 기상특보 조회시 끝에 쓸모없는 값 제거
+                .replace(", =", "")
+                .split(",");
 
         // 데이터 행 처리 (일주일치)
         for (int i = 2; i < 9; i++) {
             String line = lines[i].trim()
-                    // 중기 기온 예보 조회  시 끝에 쓸모 없는 값이 들어감.
-                    .replace(",=", "");
+                    // 중기 기온 예보 조회시 끝에 쓸모 없는 값이 들어감.
+                    .replace(",=", "")
+                    // 기상 특보 조회시 끝에 쓸모없는 값이 들어감.
+                    .replace(", =", "");
             if (line.isEmpty() || line.contains("#7777END")) continue;
 
             // 콤마로 분리

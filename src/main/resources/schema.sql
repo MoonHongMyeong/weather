@@ -50,3 +50,24 @@ CREATE TABLE mid_forecast (
     
     CONSTRAINT pk_mid_forecast PRIMARY KEY (reg_id, tm_fc, tm_ef, mod)
 );
+
+-- 기상특보 테이블
+CREATE TABLE weather_warn (
+    reg_id VARCHAR(10) NOT NULL,         -- 예보구역코드
+    tm_fc VARCHAR(12) NOT NULL,          -- 발표시각
+    tm_ef VARCHAR(12) NOT NULL,          -- 예보시각
+    tm_in VARCHAR(12) NOT NULL,          -- 특보발표시각
+    stn INT NOT NULL,                    -- 발표관서
+    wrn VARCHAR(10),                     -- 특보종류
+    lvl VARCHAR(10),                     -- 특보등급
+    cmd VARCHAR(10),                     -- 특보상태
+    grd VARCHAR(10),                     -- 특보강도
+    cnt INT,                             -- 특보횟수
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT pk_weather_warn PRIMARY KEY (reg_id, tm_fc, tm_ef, tm_in)
+);
+
+-- 자주 사용되는 조회를 위한 인덱스
+CREATE INDEX idx_weather_warn_time 
+    ON weather_warn (reg_id,tm_fc, tm_ef);

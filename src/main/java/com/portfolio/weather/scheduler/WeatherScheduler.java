@@ -4,6 +4,7 @@ import com.portfolio.weather.scheduler.data.DaejeonCoordinate;
 import com.portfolio.weather.scheduler.data.Location;
 import com.portfolio.weather.scheduler.service.MidFcstInfoService;
 import com.portfolio.weather.scheduler.service.VillageFcstInfoService;
+import com.portfolio.weather.scheduler.service.WthrWrnService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class WeatherScheduler {
     private final VillageFcstInfoService villageFcstInfoService;
     private final MidFcstInfoService midFcstInfoService;
+    private final WthrWrnService wthrWrnService;
 
     /** 
      * 단기예보
@@ -52,6 +54,16 @@ public class WeatherScheduler {
     public void executeMidTemperature(){
         for (Location location : Location.values()){
             midFcstInfoService.fetchAndSaveMidTempForecast(location.getRegionId());
+        }
+    }
+
+    /**
+     * 기상특보
+     */
+    @Scheduled(cron = "0 0 * * * *")
+    public void executeWeatherWarning(){
+        for (Location location : Location.values()){
+            wthrWrnService.fetchAndSaveWeatherWarning(location.getWarnRegionId());
         }
     }
 }
