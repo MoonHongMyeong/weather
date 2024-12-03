@@ -1,8 +1,6 @@
 package com.portfolio.weather.scheduler.service;
 
-import com.portfolio.weather.scheduler.data.type.FileType;
 import com.portfolio.weather.scheduler.data.type.SHRT;
-import com.portfolio.weather.scheduler.exception.ApiException;
 import com.portfolio.weather.scheduler.mapper.VillageForecastMapper;
 import com.portfolio.weather.scheduler.utils.ApiResponseParser;
 import com.portfolio.weather.scheduler.utils.BaseDateTimeUtil;
@@ -49,7 +47,7 @@ public class VillageFcstInfoService {
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
         // 2. 응답 파싱
-        List<Map<String, Object>> itemList = apiResponseParser.parseResponse(response);
+        List<Map<String, Object>> itemList = apiResponseParser.parseResponseJson(response);
 
         // 3. 데이터 저장
         itemList.forEach(item -> {

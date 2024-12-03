@@ -41,7 +41,7 @@ public class WeatherScheduler {
     @Scheduled(cron = "0 30 6/12 * * *")
     public void executeMidLandForecast(){
         for (Location location : Location.values()){
-            midFcstInfoService.fetchAndSaveMidLandForecast(location.getRegionId());
+            midFcstInfoService.fetchAndSaveMidLandForecast(location.getUpperRegionId());
         }
     }
 

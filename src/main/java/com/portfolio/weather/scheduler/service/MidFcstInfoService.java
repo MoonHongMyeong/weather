@@ -35,37 +35,26 @@ public class MidFcstInfoService {
         // 1. API 호출
         String apiUrl = LAND_FORECAST_URL +
                 "?authKey=" + AUTH_KEY +
-                "&pageNo=1" +
-                "&numOfRows=10" +
-                "&dataType=JSON" +
-                "&regId=" + locationCode +
-                "&tmFc=" + BaseDateTimeUtil.getBaseTimeMidFcst(LocalDateTime.now());
+                "&reg=" + locationCode +
+                "&tmfc=0&disp=1&help=0";
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
         // 2. 응답 파싱
-        List<Map<String, Object>> itemList = apiResponseParser.parseResponse(response);
+        List<Map<String, Object>> itemList = apiResponseParser.parseResponseText(response);
 
         // 3. 데이터 저장
         itemList.forEach(item -> {
-            Map<String, Object> forecast = new HashMap<>();
-            forecast.put("regId", item.get("regId"));
-            forecast.put("rnSt4Am", item.get("rnSt4Am"));
-            forecast.put("rnSt4Pm", item.get("rnSt4Pm"));
-            forecast.put("rnSt5Am", item.get("rnSt5Am"));
-            forecast.put("rnSt5Pm", item.get("rnSt5Pm"));
-            forecast.put("rnSt6Am", item.get("rnSt6Am"));
-            forecast.put("rnSt6Pm", item.get("rnSt6Pm"));
-            forecast.put("rnSt7Am", item.get("rnSt7Am"));
-            forecast.put("rnSt7Pm", item.get("rnSt7Pm"));
-            forecast.put("wf4Am", item.get("wf4Am"));
-            forecast.put("wf4Pm", item.get("wf4Pm"));
-            forecast.put("wf5Am", item.get("wf5Am"));
-            forecast.put("wf5Pm", item.get("wf5Pm"));
-            forecast.put("wf6Am", item.get("wf6Am"));
-            forecast.put("wf6Pm", item.get("wf6Pm"));
-            forecast.put("wf7Am", item.get("wf7Am"));
-            forecast.put("wf7Pm", item.get("wf7Pm"));
-
+                Map<String, Object> forecast = new HashMap<>();
+                forecast.put("reg_id", item.get("REG_ID"));
+                forecast.put("tm_fc", item.get("TM_FC"));
+                forecast.put("tm_ef", item.get("TM_EF"));
+                forecast.put("mod", item.get("MOD"));
+                forecast.put("stn", item.get("STN"));
+                forecast.put("sky", item.get("SKY"));
+                forecast.put("pre", item.get("PRE"));
+                forecast.put("conf", item.get("CONF"));
+                forecast.put("wf", item.get("WF"));
+                forecast.put("rn_st", (int)item.get("RN_ST") == -999 ? 0 : item.get("RN_ST"));
             try {
                 mfMapper.mergeMidLandFcst(forecast);
             } catch (PersistenceException e) {
@@ -79,29 +68,27 @@ public class MidFcstInfoService {
         // 1. API 호출
         String apiUrl = TEMP_FORECAST_URL +
                 "?authKey=" + AUTH_KEY +
-                "&pageNo=1" +
-                "&numOfRows=10" +
-                "&dataType=JSON" +
-                "&regId=" + locationCode +
-                "&tmFc=" + BaseDateTimeUtil.getBaseTimeMidFcst(LocalDateTime.now());
+                "&reg=" + locationCode +
+                "&tmfc=0&disp=1&help=0";
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
         // 2. 응답 파싱
-        List<Map<String, Object>> itemList = apiResponseParser.parseResponse(response);
+        List<Map<String, Object>> itemList = apiResponseParser.parseResponseText(response);
 
         // 3. 데이터 저장
         itemList.forEach(item -> {
             Map<String, Object> forecast = new HashMap<>();
-            forecast.put("regId", item.get("regId"));
-            forecast.put("taMin4", item.get("taMin4"));
-            forecast.put("taMax4", item.get("taMax4"));
-            forecast.put("taMin5", item.get("taMin5"));
-            forecast.put("taMax5", item.get("taMax5"));
-            forecast.put("taMin6", item.get("taMin6"));
-            forecast.put("taMax6", item.get("taMax6"));
-            forecast.put("taMin7", item.get("taMin7"));
-            forecast.put("taMax7", item.get("taMax7"));
-
+            forecast.put("reg_id", item.get("REG_ID"));
+            forecast.put("tm_fc", item.get("TM_FC"));
+            forecast.put("tm_ef", item.get("TM_EF"));
+            forecast.put("mod", item.get("MOD"));
+            forecast.put("stn", item.get("STN"));
+            forecast.put("min", item.get("MIN"));
+            forecast.put("max", item.get("MAX"));
+            forecast.put("min_l", (int)item.get("MIN_L") == -999 ? 0 : item.get("MIN_L"));
+            forecast.put("min_h", (int)item.get("MIN_H") == -999 ? 0 : item.get("MIN_H"));
+            forecast.put("max_l", (int)item.get("MAX_L") == -999 ? 0 : item.get("MAX_L"));
+            forecast.put("max_h", (int)item.get("MAX_H") == -999 ? 0 : item.get("MAX_H"));   
             try {
                 mfMapper.mergeMidTempFcst(forecast);
             } catch (PersistenceException e) {
