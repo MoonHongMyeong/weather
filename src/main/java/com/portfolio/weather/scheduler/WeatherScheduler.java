@@ -2,6 +2,7 @@ package com.portfolio.weather.scheduler;
 
 import com.portfolio.weather.scheduler.data.DaejeonCoordinate;
 import com.portfolio.weather.scheduler.data.Location;
+import com.portfolio.weather.scheduler.service.EnvironmentalIndexService;
 import com.portfolio.weather.scheduler.service.MidFcstInfoService;
 import com.portfolio.weather.scheduler.service.VillageFcstInfoService;
 import com.portfolio.weather.scheduler.service.WthrWrnService;
@@ -17,6 +18,7 @@ public class WeatherScheduler {
     private final VillageFcstInfoService villageFcstInfoService;
     private final MidFcstInfoService midFcstInfoService;
     private final WthrWrnService wthrWrnService;
+    private final EnvironmentalIndexService indexService;
 
     /** 
      * 단기예보
@@ -64,6 +66,25 @@ public class WeatherScheduler {
     public void executeWeatherWarning(){
         for (Location location : Location.values()){
             wthrWrnService.fetchAndSaveWeatherWarning(location.getWarnRegionId());
+        }
+    }
+
+    /**
+     * 자외선 지수
+     */
+    @Scheduled(cron = "0 5 0/3 * * *")
+    public void executeUvIndex(){
+        for (Location location : Location.values()){
+            indexService.fetchAndSaveUvIndex(location.getAreaNo());
+        }
+    }
+    /**
+     * 대기정체지수
+     */
+    @Scheduled(cron = "0 8 0/3 * * *")
+    public void executeAirDiffusionIndex(){
+        for (Location location : Location.values()){
+            indexService.fetchAndSaveAirDiffusionIndex(location.getAreaNo());
         }
     }
 }

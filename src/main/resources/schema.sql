@@ -71,3 +71,38 @@ CREATE TABLE weather_warn (
 -- 자주 사용되는 조회를 위한 인덱스
 CREATE INDEX idx_weather_warn_time 
     ON weather_warn (reg_id,tm_fc, tm_ef);
+
+-- 환경지수 테이블 (자외선지수, 대기정체지수)
+CREATE TABLE environmental_index (
+    code VARCHAR(2) NOT NULL,            -- 지수 코드 (UV: 자외선, AD: 대기정체)
+    area_no VARCHAR(5) NOT NULL,         -- 지역 코드
+    date VARCHAR(8) NOT NULL,            -- 발표일자 (yyyyMMdd)
+    h3 VARCHAR(10),                      -- 3시간 예보
+    h6 VARCHAR(10),                      -- 6시간 예보
+    h9 VARCHAR(10),                      -- 9시간 예보
+    h12 VARCHAR(10),                     -- 12시간 예보
+    h15 VARCHAR(10),                     -- 15시간 예보
+    h18 VARCHAR(10),                     -- 18시간 예보
+    h21 VARCHAR(10),                     -- 21시간 예보
+    h24 VARCHAR(10),                     -- 24시간 예보
+    h27 VARCHAR(10),                     -- 27시간 예보
+    h30 VARCHAR(10),                     -- 30시간 예보
+    h33 VARCHAR(10),                     -- 33시간 예보
+    h36 VARCHAR(10),                     -- 36시간 예보
+    h39 VARCHAR(10),                     -- 39시간 예보
+    h42 VARCHAR(10),                     -- 42시간 예보
+    h45 VARCHAR(10),                     -- 45시간 예보
+    h48 VARCHAR(10),                     -- 48시간 예보
+    h51 VARCHAR(10),                     -- 51시간 예보
+    h54 VARCHAR(10),                     -- 54시간 예보
+    h57 VARCHAR(10),                     -- 57시간 예보
+    h60 VARCHAR(10),                     -- 60시간 예보
+    h63 VARCHAR(10),                     -- 63시간 예보
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT pk_environmental_index PRIMARY KEY (code, area_no, date)
+);
+
+-- 조회 성능 향상을 위한 인덱스
+CREATE INDEX idx_environmental_index_date 
+    ON environmental_index (code, date);

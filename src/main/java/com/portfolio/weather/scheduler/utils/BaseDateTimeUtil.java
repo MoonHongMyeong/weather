@@ -31,13 +31,19 @@ public class BaseDateTimeUtil {
     public static String getBaseDateTime(LocalDateTime now) {
         return now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
     }
-    public static String getBaseTimeMidFcst(LocalDateTime now) {
+
+    public static String getTimeForEnvironmentalIndex(LocalDateTime now) {
         int currentHour = now.getHour();
         return switch (currentHour){
-            case 0, 1, 2, 3, 4, 5 -> now.minusDays(1).withHour(18).withMinute(0).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
-            case 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 -> now.withHour(6).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
-            case 18, 19, 20, 21, 22, 23 -> now.withHour(18).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
-            default -> throw new IllegalStateException("시간 치환에 문제가 있습니다 : getBaseTimeMidFcst : " + currentHour);
+            case 0, 1, 2 -> now.withHour(0).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 3, 4, 5 -> now.withHour(3).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 6, 7, 8 -> now.withHour(6).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 9, 10, 11 -> now.withHour(9).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 12, 13, 14 -> now.withHour(12).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 15, 16, 17 -> now.withHour(15).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 18, 19, 20 -> now.withHour(18).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            case 21, 22, 23 -> now.withHour(21).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
+            default -> throw new IllegalStateException("시간 치환에 문제가 있습니다 : getTimeEnvironmentalIndex : " + currentHour);
         };
     }
 }
