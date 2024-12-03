@@ -57,6 +57,13 @@ public class ApiResponseParser {
         // 줄 단위로 분리
         String[] lines = response.getBody().split("\n");
 
+        // 응답이 너무 짧거나 시작/끝 태그만 있는 경우
+        if (lines.length < 3 || 
+            (lines.length == 3 && lines[0].contains("#START7777") && lines[2].contains("#7777END"))) {
+            log.info("데이터가 없는 응답입니다: {}", response.getBody());
+            return result;  // 빈 리스트 반환
+        }
+
         // 헤더 추출 (두 번째 줄에서 # 제거 후 콤마로 분리)
         String[] headers = lines[1].substring(1).trim().split(",");
 
@@ -65,7 +72,7 @@ public class ApiResponseParser {
             String line = lines[i].trim()
                     // 중기 기온 예보 조회  시 끝에 쓸모 없는 값이 들어감.
                     .replace(",=", "");
-            if (line.isEmpty()) continue;
+            if (line.isEmpty() || line.contains("#7777END")) continue;
 
             // 콤마로 분리
             String[] values = line.split(",");

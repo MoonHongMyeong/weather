@@ -42,6 +42,12 @@ public class MidFcstInfoService {
         // 2. 응답 파싱
         List<Map<String, Object>> itemList = apiResponseParser.parseResponseText(response);
 
+        // 데이터가 없으면 종료
+        if (itemList.isEmpty()) {
+            log.info("중기육상예보 데이터가 없습니다. locationCode: {}", locationCode);
+            return;
+        }
+
         // 3. 데이터 저장
         itemList.forEach(item -> {
                 Map<String, Object> forecast = new HashMap<>();
@@ -74,6 +80,12 @@ public class MidFcstInfoService {
 
         // 2. 응답 파싱
         List<Map<String, Object>> itemList = apiResponseParser.parseResponseText(response);
+
+        // 데이터가 없으면 종료
+        if (itemList.isEmpty()) {
+            log.info("중기기온예보 데이터가 없습니다. locationCode: {}", locationCode);
+            return;
+        }
 
         // 3. 데이터 저장
         itemList.forEach(item -> {
