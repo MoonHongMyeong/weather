@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portfolio.weather.scheduler.mapper.MidForecastMapper">
+    <insert id="mergeMidLandFcst" parameterType="map">
+        /* H2 Database */
+        <if test="_databaseId == 'h2'">
+            MERGE INTO mid_forecast AS target
+            USING (VALUES (
+                #{reg_id},
+                #{tm_fc},
+                #{tm_ef},
+                #{mod},
+                #{stn},
+                #{sky},
+                #{pre},
+                #{conf},
+                #{wf},
+                #{rn_st},
+                CURRENT_TIMESTAMP
+            )) AS source (
+                reg_id, tm_fc, tm_ef, mod, stn, sky, pre, conf, wf, rn_st, created_at
+            )
+            ON target.reg_id = source.reg_id 
+                AND target.tm_fc = source.tm_fc 
+                AND target.tm_ef = source.tm_ef
+                AND target.mod = source.mod
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    sky = source.sky,
+                    pre = source.pre,
+                    conf = source.conf,
+                    wf = source.wf,
+                    rn_st = source.rn_st,
+                    created_at = source.created_at
+            WHEN NOT MATCHED THEN
+                INSERT (reg_id, tm_fc, tm_ef, mod, stn, sky, pre, conf, wf, rn_st, created_at)
+                VALUES (source.reg_id, source.tm_fc, source.tm_ef, source.mod, source.stn,
+                       source.sky, source.pre, source.conf, source.wf, source.rn_st, source.created_at)
+        </if>
+
+        /* PostgreSQL */
+        <if test="_databaseId == 'postgresql'">
+            INSERT INTO mid_forecast (
+                reg_id, tm_fc, tm_ef, mod, stn, sky, pre, conf, wf, rn_st, created_at
+            ) VALUES (
+                #{reg_id}, #{tm_fc}, #{tm_ef}, #{mod}, #{stn},
+                #{sky}, #{pre}, #{conf}, #{wf}, #{rn_st}, CURRENT_TIMESTAMP
+            ) ON CONFLICT (reg_id, tm_fc, tm_ef, mod) 
+            DO UPDATE SET
+                sky = EXCLUDED.sky,
+                pre = EXCLUDED.pre,
+                conf = EXCLUDED.conf,
+                wf = EXCLUDED.wf,
+                rn_st = EXCLUDED.rn_st,
+                created_at = CURRENT_TIMESTAMP
+        </if>
+    </insert>
+
+    <insert id="mergeMidTempFcst" parameterType="map">
+        /* H2 Database */
+        <if test="_databaseId == 'h2'">
+            MERGE INTO mid_forecast AS target
+            USING (VALUES (
+                #{reg_id},
+                #{tm_fc},
+                #{tm_ef},
+                #{mod},
+                #{stn},
+                #{min},
+                #{max},
+                #{min_l},
+                #{min_h},
+                #{max_l},
+                #{max_h},
+                CURRENT_TIMESTAMP
+            )) AS source (
+                reg_id, tm_fc, tm_ef, mod, stn, min, max, min_l, min_h, max_l, max_h, created_at
+            )
+            ON target.reg_id = source.reg_id 
+                AND target.tm_fc = source.tm_fc 
+                AND target.tm_ef = source.tm_ef
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    min = source.min,
+                    max = source.max,
+                    min_l = source.min_l,
+                    min_h = source.min_h,
+                    max_l = source.max_l,
+                    max_h = source.max_h,
+                    created_at = source.created_at
+            WHEN NOT MATCHED THEN
+                INSERT (reg_id, tm_fc, tm_ef, mod, stn, min, max, min_l, min_h, max_l, max_h, created_at)
+                VALUES (source.reg_id, source.tm_fc, source.tm_ef, source.mod, source.stn,
+                       source.min, source.max, source.min_l, source.min_h, source.max_l, source.max_h, 
+                       source.created_at)
+        </if>
+
+        /* PostgreSQL */
+        <if test="_databaseId == 'postgresql'">
+            INSERT INTO mid_forecast (
+                reg_id, tm_fc, tm_ef, mod, stn, min, max, min_l, min_h, max_l, max_h, created_at
+            ) VALUES (
+                #{reg_id}, #{tm_fc}, #{tm_ef}, #{mod}, #{stn},
+                #{min}, #{max}, #{min_l}, #{min_h}, #{max_l}, #{max_h}, CURRENT_TIMESTAMP
+            ) ON CONFLICT (reg_id, tm_fc, tm_ef) 
+            DO UPDATE SET
+                min = EXCLUDED.min,
+                max = EXCLUDED.max,
+                min_l = EXCLUDED.min_l,
+                min_h = EXCLUDED.min_h,
+                max_l = EXCLUDED.max_l,
+                max_h = EXCLUDED.max_h,
+                created_at = CURRENT_TIMESTAMP
+        </if>
+    </insert>
+</mapper>

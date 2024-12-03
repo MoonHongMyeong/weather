@@ -14,7 +14,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan("com.portfolio.weather.mapper")
+@MapperScan({"com.portfolio.weather.mapper", "com.portfolio.weather.scheduler.mapper"})
 public class MybatisConfig {
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {

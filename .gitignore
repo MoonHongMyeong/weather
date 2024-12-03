@@ -38,3 +38,4 @@ out/
 
 ### api ###
 application-api.yml
+test.properties
