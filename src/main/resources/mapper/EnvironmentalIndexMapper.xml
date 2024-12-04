@@ -3,32 +3,12 @@
 <mapper namespace="com.portfolio.weather.scheduler.mapper.EnvironmentalIndexMapper">
     <!-- H2 Database -->
     <insert id="mergeIndex" parameterType="map" databaseId="h2">
-        MERGE INTO environmental_index KEY (code, area_no, date)
+        MERGE INTO environmental_index KEY (code, area_no, fcst_date)
         VALUES (
             #{code},
             #{areaNo},
-            #{date},
-            #{h3},
-            #{h6},
-            #{h9},
-            #{h12},
-            #{h15},
-            #{h18},
-            #{h21},
-            #{h24},
-            #{h27},
-            #{h30},
-            #{h33},
-            #{h36},
-            #{h39},
-            #{h42},
-            #{h45},
-            #{h48},
-            #{h51},
-            #{h54},
-            #{h57},
-            #{h60},
-            #{h63},
+            #{fcst_date},
+            #{fcst_value},
             CURRENT_TIMESTAMP
         )
     </insert>
@@ -36,60 +16,18 @@
     <!-- PostgreSQL -->
     <insert id="mergeIndex" parameterType="map" databaseId="postgresql">
         INSERT INTO environmental_index (
-            code, area_no, date,
-            h3, h6, h9, h12, h15, h18, h21, h24,
-            h27, h30, h33, h36, h39, h42, h45, h48,
-            h51, h54, h57, h60, h63, created_at
+            code, area_no, fcst_date,
+            fcst_value, created_at
         ) VALUES (
             #{code},
             #{areaNo},
             #{date},
-            #{h3},
-            #{h6},
-            #{h9},
-            #{h12},
-            #{h15},
-            #{h18},
-            #{h21},
-            #{h24},
-            #{h27},
-            #{h30},
-            #{h33},
-            #{h36},
-            #{h39},
-            #{h42},
-            #{h45},
-            #{h48},
-            #{h51},
-            #{h54},
-            #{h57},
-            #{h60},
-            #{h63},
+            #{fcst_value},
             CURRENT_TIMESTAMP
         )
-        ON CONFLICT (code, area_no, date)
+        ON CONFLICT (code, area_no, fcst_date)
         DO UPDATE SET
-            h3 = #{h3},
-            h6 = #{h6},
-            h9 = #{h9},
-            h12 = #{h12},
-            h15 = #{h15},
-            h18 = #{h18},
-            h21 = #{h21},
-            h24 = #{h24},
-            h27 = #{h27},
-            h30 = #{h30},
-            h33 = #{h33},
-            h36 = #{h36},
-            h39 = #{h39},
-            h42 = #{h42},
-            h45 = #{h45},
-            h48 = #{h48},
-            h51 = #{h51},
-            h54 = #{h54},
-            h57 = #{h57},
-            h60 = #{h60},
-            h63 = #{h63},
+            fcst_value = #{fcst_value},
             created_at = CURRENT_TIMESTAMP
     </insert>
 </mapper>

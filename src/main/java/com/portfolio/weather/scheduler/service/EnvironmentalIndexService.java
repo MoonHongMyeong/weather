@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +33,14 @@ public class EnvironmentalIndexService {
     private String UV_INDEX_URL;
     @Value("${kweather.service.livingWeatherIndexService.AirDiffusionIndex}")
     private String AIR_DIFFUSION_URL;
+
     public void fetchAndSaveUvIndex(String areaNo) {
         String apiUrl = UV_INDEX_URL +
                 "?authKey=" + AUTH_KEY +
                 "&areaNo=" + areaNo +
                 "&time=" + BaseDateTimeUtil.getTimeForEnvironmentalIndex(LocalDateTime.now()) +
-                "pageNo=1&numOfRows=10&dataType=JSON";
-
+                "&pageNo=1&numOfRows=10&dataType=JSON";
+        log.info(apiUrl);
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
         List<Map<String, Object>> itemList = apiResponseParser.parseResponseJson(response);
 
@@ -49,35 +51,21 @@ public class EnvironmentalIndexService {
 
         itemList.forEach(item -> {
             Map<String, Object> index = new HashMap<>();
-            index.put("code", EnvironmentalIndexType.valueOf((String) item.get("code")).getName());
-            index.put("areaNo", item.get("areaNo"));
-            index.put("date", item.get("date"));
-            index.put("h3", item.get("h3"));
-            index.put("h6", item.get("h6"));
-            index.put("h9", item.get("h9"));
-            index.put("h12", item.get("h12"));
-            index.put("h15", item.get("h15"));
-            index.put("h18", item.get("h18"));
-            index.put("h21", item.get("h21"));
-            index.put("h24", item.get("h24"));
-            index.put("h27", item.get("h27"));
-            index.put("h30", item.get("h30"));
-            index.put("h33", item.get("h33"));
-            index.put("h36", item.get("h36"));
-            index.put("h39", item.get("h39"));
-            index.put("h42", item.get("h42"));
-            index.put("h45", item.get("h45"));
-            index.put("h48", item.get("h48"));
-            index.put("h51", item.get("h51"));
-            index.put("h54", item.get("h54"));
-            index.put("h57", item.get("h57"));
-            index.put("h60", item.get("h60"));
-            index.put("h63", item.get("h63"));
-            try{
-                indexMapper.mergeIndex(index);
-            } catch (PersistenceException e){
-                log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
-                        item.get("areaNo"), e.getMessage());
+            for (int i = 0; i <= 48 ; i += 3) {
+                LocalDateTime current = LocalDateTime.parse((String) item.get("date")
+                                                            , DateTimeFormatter.ofPattern("yyyyMMddHH"))
+                                                     .plusHours(i);
+                index.put("code", EnvironmentalIndexType.valueOf((String) item.get("code")).getName());
+                index.put("areaNo", item.get("areaNo"));
+                index.put("fcst_date", current.format(DateTimeFormatter.ofPattern("yyyyMMddHH")));
+                index.put("fcst_value", item.get("h"+i));
+                System.out.println(index);
+                try{
+                    indexMapper.mergeIndex(index);
+                } catch (PersistenceException e){
+                    log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
+                            item.get("areaNo"), e.getMessage());
+                }
             }
         });
     }
@@ -87,7 +75,8 @@ public class EnvironmentalIndexService {
                 "?authKey=" + AUTH_KEY +
                 "&areaNo=" + areaNo +
                 "&time=" + BaseDateTimeUtil.getTimeForEnvironmentalIndex(LocalDateTime.now()) +
-                "pageNo=1&numOfRows=10&dataType=JSON";
+                "&pageNo=1&numOfRows=10&dataType=JSON";
+        log.info(apiUrl);
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
         List<Map<String, Object>> itemList = apiResponseParser.parseResponseJson(response);
 
@@ -98,35 +87,22 @@ public class EnvironmentalIndexService {
 
         itemList.forEach(item -> {
             Map<String, Object> index = new HashMap<>();
-            index.put("code", EnvironmentalIndexType.valueOf((String) item.get("code")).getName());
-            index.put("areaNo", item.get("areaNo"));
-            index.put("date", item.get("date"));
-            index.put("h3", item.get("h3"));
-            index.put("h6", item.get("h6"));
-            index.put("h9", item.get("h9"));
-            index.put("h12", item.get("h12"));
-            index.put("h15", item.get("h15"));
-            index.put("h18", item.get("h18"));
-            index.put("h21", item.get("h21"));
-            index.put("h24", item.get("h24"));
-            index.put("h27", item.get("h27"));
-            index.put("h30", item.get("h30"));
-            index.put("h33", item.get("h33"));
-            index.put("h36", item.get("h36"));
-            index.put("h39", item.get("h39"));
-            index.put("h42", item.get("h42"));
-            index.put("h45", item.get("h45"));
-            index.put("h48", item.get("h48"));
-            index.put("h51", item.get("h51"));
-            index.put("h54", item.get("h54"));
-            index.put("h57", item.get("h57"));
-            index.put("h60", item.get("h60"));
-            index.put("h63", item.get("h63"));
-            try{
-                indexMapper.mergeIndex(index);
-            } catch (PersistenceException e){
-                log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
-                        item.get("areaNo"), e.getMessage());
+            for (int i = 0; i <= 48; i += 3) {
+                LocalDateTime current = LocalDateTime.parse((String) item.get("date")
+                                , DateTimeFormatter.ofPattern("yyyyMMddHH"))
+                        .plusHours(i);
+                index.put("code", EnvironmentalIndexType.valueOf((String) item.get("code")).getName());
+                index.put("areaNo", item.get("areaNo"));
+                index.put("fcst_date", current.format(DateTimeFormatter.ofPattern("yyyyMMddHH")));
+                index.put("fcst_value", item.get("h"+i));
+                System.out.println(i);
+                System.out.println(index);
+                try{
+                    indexMapper.mergeIndex(index);
+                } catch (PersistenceException e){
+                    log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
+                            item.get("areaNo"), e.getMessage());
+                }
             }
         });
     }
