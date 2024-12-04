@@ -34,7 +34,7 @@ public class BaseDateTimeUtil {
 
     public static String getTimeForEnvironmentalIndex(LocalDateTime now) {
         int currentHour = now.getHour();
-        return switch (currentHour){
+        return switch (currentHour) {
             case 0, 1, 2 -> now.withHour(0).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
             case 3, 4, 5 -> now.withHour(3).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
             case 6, 7, 8 -> now.withHour(6).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
@@ -45,5 +45,12 @@ public class BaseDateTimeUtil {
             case 21, 22, 23 -> now.withHour(21).format(DateTimeFormatter.ofPattern("yyyyMMddHH"));
             default -> throw new IllegalStateException("시간 치환에 문제가 있습니다 : getTimeEnvironmentalIndex : " + currentHour);
         };
+    }
+
+    // 30분 주기로 결정함.
+    public static String getTimeForImage(LocalDateTime now) {
+        int currentMinute = now.getMinute();
+        if (30 > currentMinute) return now.withMinute(0).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+        else return now.withMinute(30).format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
     }
 }
