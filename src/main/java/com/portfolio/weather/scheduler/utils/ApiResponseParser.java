@@ -10,10 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -64,11 +62,22 @@ public class ApiResponseParser {
             return result;  // 빈 리스트 반환
         }
 
+        String[] headers;
+
         // 헤더 추출 (두 번째 줄에서 # 제거 후 콤마로 분리)
-        String[] headers = lines[1].substring(1).trim()
-                // 기상특보 조회시 끝에 쓸모없는 값 제거
-                .replace(", =", "")
-                .split(",");
+        if ( lines[1].contains(",") ) {
+            headers = lines[1].substring(1).trim()
+                    // 기상특보 조회시 끝에 쓸모없는 값 제거
+                    .replace(", =", "")
+                    .split(",");
+        }else{
+            // 요청값에 값을 넣어도 헤더에 구분자 없는 경우
+            headers = Arrays.stream(lines[1].substring(1).trim()
+                    .split(" "))
+                    .filter(header -> !header.isBlank())
+                    .toArray(String[]::new);
+        }
+
 
         // 데이터 행 처리 (일주일치)
         for (int i = 2; i < 9; i++) {
@@ -88,7 +97,7 @@ public class ApiResponseParser {
                 String value = values[j].trim();
 
                 // 숫자인 경우 Integer로 변환
-                if (value.matches("-?\\d+")) {
+                if (value.matches("-?\\d{1,3}")) {
                     row.put(headers[j].trim(), Integer.parseInt(value));
                 } else {
                     row.put(headers[j].trim(), value);

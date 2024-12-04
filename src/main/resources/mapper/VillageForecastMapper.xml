@@ -3,55 +3,10 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.portfolio.weather.scheduler.mapper.VillageForecastMapper">
-    <select id="getLatestVersionByFileType" resultType="map">
-        SELECT 
-            version,
-            file_type as fileType,
-        FROM village_forecast_version
-        WHERE file_type = #{fileType}
-        ORDER BY version DESC
-        LIMIT 1
-    </select>
-
-    <insert id="mergeLatestVersion" parameterType="map">
-        /* H2 Database */
-        <if test="_databaseId == 'h2'">
-            MERGE INTO village_forecast_version AS target
-            USING (VALUES (
-                #{version},
-                #{fileType},
-                CURRENT_TIMESTAMP
-            )) AS source (
-                version, file_type, created_at
-            )
-            ON target.file_type = source.file_type
-            WHEN MATCHED THEN
-                UPDATE SET 
-                    version = source.version,
-                    created_at = source.created_at
-            WHEN NOT MATCHED THEN
-                INSERT (version, file_type, created_at)
-                VALUES (source.version, source.file_type, source.created_at)
-        </if>
-    
-        /* PostgreSQL */
-        <if test="_databaseId == 'postgresql'">
-            INSERT INTO village_forecast_version (
-                version, 
-                file_type
-            ) VALUES (
-                #{version}, 
-                #{fileType}
-            ) ON CONFLICT (file_type) DO UPDATE SET 
-                version = EXCLUDED.version,
-                created_at = CURRENT_TIMESTAMP
-        </if>
-    </insert>
-
     <insert id="mergeShrt" parameterType="map">
         /* H2 Database */
         <if test="_databaseId == 'h2'">
-            MERGE INTO village_forecast_shrt AS target
+            MERGE INTO short_forecast AS target
             USING (VALUES (
                 #{nx},
                 #{ny},
@@ -84,26 +39,11 @@
         
         /* PostgreSQL */
         <if test="_databaseId == 'postgresql'">
-            INSERT INTO village_forecast_shrt (
-                nx,
-                ny,
-                base_date,
-                base_time,
-                fcst_date,
-                fcst_time,
-                category,
-                fcst_value,
-                created_at
+            INSERT INTO short_forecast (
+                nx, ny, base_date, base_time, fcst_date, fcst_time, category, fcst_value, created_at
             ) VALUES (
-                #{nx},
-                #{ny},
-                #{baseDate},
-                #{baseTime},
-                #{fcstDate},
-                #{fcstTime},
-                #{category},
-                #{fcstValue},
-                CURRENT_TIMESTAMP
+                #{nx}, #{ny}, #{baseDate}, #{baseTime}, #{fcstDate}, #{fcstTime}, 
+                #{category}, #{fcstValue}, CURRENT_TIMESTAMP
             ) ON CONFLICT (nx, ny, fcst_date, fcst_time, category) 
             DO UPDATE SET
                 base_date = EXCLUDED.base_date,
