@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.portfolio.weather.api.mapper.WeatherMapper">
+
+    <select id="selectLatestShortTermForecast" resultType="map">
+        <![CDATA[
+        SELECT fcst_date, 
+               fcst_time, 
+               category, 
+               fcst_value
+          FROM short_forecast
+         WHERE nx = #{nx} 
+           AND ny = #{ny}
+           AND base_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
+           AND base_time = (SELECT MAX(base_time)
+                             FROM short_forecast
+                            WHERE base_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
+                           )
+        ORDER BY fcst_date, fcst_time, category
+        ]]>
+    </select>
+
+    <select id="selectLatestMidTermForecast" resultType="map">
+        <![CDATA[
+        SELECT 
+            A.STN, 
+            A.TM_EF, 
+            A.SKY, 
+            A.PRE, 
+            A.CONF, 
+            A.WF, 
+            A.RN_ST,
+            B.MIN,
+            B.MAX,
+            B.MIN_L,
+            B.MIN_H,
+            B.MAX_L,
+            B.MAX_H
+        FROM MID_FORECAST A
+        LEFT JOIN MID_FORECAST B 
+            ON LEFT(A.TM_EF, 8) = LEFT(B.TM_EF, 8) 
+            AND B.MOD = 'A01'
+        WHERE A.TM_EF > TO_CHAR(TRUNC(now() + 3), 'YYYYMMDDHHmm')
+            AND A.MOD = 'A02'
+        ORDER BY A.TM_EF;
+        ]]>
+    </select>
+
+    <!-- 기상특보 조회 -->
+    <select id="selectLatestWarning" resultType="map">
+        <![CDATA[
+        SELECT TM_EF, 
+               WRN, 
+               LVL, 
+               CMD, 
+               GRD, 
+               CNT
+          FROM weather_warn
+         WHERE TM_FC > TRUNC(now());
+        ]]>
+    </select>
+
+    <select id="selectIndex" resultType="map">
+        <![CDATA[
+        WITH ranked_data AS (
+            SELECT 
+                    code,
+                    fcst_date,
+                    fcst_value,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY code 
+                        ORDER BY ABS(
+                            TIMESTAMPDIFF('MINUTE', 
+                                NOW(), 
+                                PARSEDATETIME(fcst_date, 'yyyyMMddHH')
+                            )
+                    ) as rn
+              FROM environmental_index
+            WHERE area_no = #{areaNo}
+        )
+        SELECT code, 
+               fcst_date, 
+               fcst_value
+          FROM ranked_data
+         WHERE rn = 1
+        ORDER BY code
+        ]]>
+    </select>
+</mapper>

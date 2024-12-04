@@ -1,4 +1,4 @@
-package com.portfolio.weather.mapper;
+package com.portfolio.weather.api.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
