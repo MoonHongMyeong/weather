@@ -30,10 +30,10 @@ public class WthrWrnService {
     private String AUTH_KEY;
     @Value("${kweather.service.weatherWarnService}")
     private String WEATHER_WARN_URL;
-    public void fetchAndSaveWeatherWarning(String locationCode) {
+    public void fetchAndSaveWeatherWarning(String warnRegionId) {
         String apiUrl = WEATHER_WARN_URL +
                 "?authKey=" + AUTH_KEY +
-                "&reg=" + locationCode +
+                "&reg=" + warnRegionId +
                 "&tmfc1=" + BaseDateTimeUtil.getBaseDateTime(LocalDateTime.now()) +
                 "&disp=0&help=0";
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
@@ -43,7 +43,7 @@ public class WthrWrnService {
 
         // 데이터가 없으면 종료
         if (itemList.isEmpty()) {
-            log.info("기상특보 데이터가 없습니다. locationCode: {}", locationCode);
+            log.info("기상특보 데이터가 없습니다. locationCode: {}", warnRegionId);
             return;
         }
 
