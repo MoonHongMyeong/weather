@@ -33,11 +33,11 @@ public class MidFcstInfoService {
     @Value("${kweather.service.MidForecastService.tempForecast}")
     private String TEMP_FORECAST_URL;
 
-    public void fetchAndSaveMidLandForecast(String locationCode) {
+    public void fetchAndSaveMidLandForecast(String upperRegionId) {
         // 1. API 호출
         String apiUrl = LAND_FORECAST_URL +
                 "?authKey=" + AUTH_KEY +
-                "&reg=" + locationCode +
+                "&reg=" + upperRegionId +
                 "&tmfc=0&disp=1&help=0";
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
@@ -46,7 +46,7 @@ public class MidFcstInfoService {
 
         // 데이터가 없으면 종료
         if (itemList.isEmpty()) {
-            log.info("중기육상예보 데이터가 없습니다. locationCode: {}", locationCode);
+            log.info("중기육상예보 데이터가 없습니다. locationCode: {}", upperRegionId);
             return;
         }
 
@@ -72,11 +72,11 @@ public class MidFcstInfoService {
         });
     }
 
-    public void fetchAndSaveMidTempForecast(String locationCode) {
+    public void fetchAndSaveMidTempForecast(String regionId) {
         // 1. API 호출
         String apiUrl = TEMP_FORECAST_URL +
                 "?authKey=" + AUTH_KEY +
-                "&reg=" + locationCode +
+                "&reg=" + regionId +
                 "&tmfc=0&disp=1&help=0";
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
@@ -85,7 +85,7 @@ public class MidFcstInfoService {
 
         // 데이터가 없으면 종료
         if (itemList.isEmpty()) {
-            log.info("중기기온예보 데이터가 없습니다. locationCode: {}", locationCode);
+            log.info("중기기온예보 데이터가 없습니다. locationCode: {}", regionId);
             return;
         }
 

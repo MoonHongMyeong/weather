@@ -1,7 +1,7 @@
 package com.portfolio.weather.scheduler;
 
-import com.portfolio.weather.scheduler.data.DaejeonCoordinate;
-import com.portfolio.weather.scheduler.data.Location;
+import com.portfolio.weather.common.data.DaejeonCoordinate;
+import com.portfolio.weather.common.data.Location;
 import com.portfolio.weather.scheduler.service.EnvironmentalIndexService;
 import com.portfolio.weather.scheduler.service.MidFcstInfoService;
 import com.portfolio.weather.scheduler.service.VillageFcstInfoService;

@@ -1,6 +1,6 @@
 package com.portfolio.weather.api;
 
-import com.portfolio.weather.scheduler.data.Location;
+import com.portfolio.weather.common.data.Location;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.portfolio.weather.scheduler.data;
+package com.portfolio.weather.common.data;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

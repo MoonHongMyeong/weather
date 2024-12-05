@@ -2,6 +2,7 @@ package com.portfolio.weather.api.controller;
 
 import com.portfolio.weather.api.service.ImageProxyService;
 import com.portfolio.weather.api.service.WeatherService;
+import com.portfolio.weather.common.data.Location;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
@@ -22,34 +23,39 @@ public class WeatherApiController {
     private final WeatherService weatherService;
     private final ImageProxyService imageProxyService;
 
-    @GetMapping("/forecast/short")
+    @GetMapping("/forecast/short/{location}")
     public ResponseEntity<List<Map<String, Object>>> getShortTermForecast(
-            @RequestParam String nx,
-            @RequestParam String ny) {
-        return ResponseEntity.ok(weatherService.getShortTermForecast(nx, ny));
+            @PathVariable(name = "location") String requestedLocation) {
+        Location location = Location.valueOf(requestedLocation);
+        return ResponseEntity.ok(weatherService.getShortTermForecast(location.getNx(), location.getNy()));
     }
 
-    @GetMapping("/forecast/mid")
+    @GetMapping("/forecast/mid/{location}")
     public ResponseEntity<List<Map<String, Object>>> getMidTermForecast(
-            @RequestParam String regionId) {
-        return ResponseEntity.ok(weatherService.getMidTermForecast(regionId));
+            @PathVariable(name = "location") String requestedLocation) {
+        Location location = Location.valueOf(requestedLocation);
+        return ResponseEntity.ok(weatherService.getMidTermForecast(location.getRegionId()));
     }
 
     @GetMapping("/warnings")
     public ResponseEntity<List<Map<String, Object>>> getWeatherWarnings(
-            @RequestParam String regionId) {
-        return ResponseEntity.ok(weatherService.getWeatherWarnings(regionId));
+            @PathVariable(name = "location") String requestedLocation) {
+        Location location = Location.valueOf(requestedLocation);
+        return ResponseEntity.ok(weatherService.getWeatherWarnings(location.getWarnRegionId()));
     }
 
-    @GetMapping("/index")
+    @GetMapping("/index/{location}")
     public ResponseEntity<List<Map<String, Object>>> getIndex(
-            @RequestParam String areaNo) {
-        return ResponseEntity.ok(weatherService.getIndex(areaNo));
+            @PathVariable(name = "location") String requestedLocation) {
+        Location location = Location.valueOf(requestedLocation);
+        log.warn(location.name());
+        log.warn(requestedLocation);
+        return ResponseEntity.ok(weatherService.getIndex(location.getAreaNo()));
     }
 
     @GetMapping(value = "/images/{type}", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getWeatherImage(
-            @PathVariable String type) {
+            @PathVariable(name = "type") String type) {
         try {
             byte[] imageBytes = imageProxyService.getWeatherImage(type);
             

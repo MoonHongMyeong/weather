@@ -1,6 +1,6 @@
 package com.portfolio.weather.api;
 
-import com.portfolio.weather.scheduler.data.Location;
+import com.portfolio.weather.common.data.Location;
 import com.portfolio.weather.scheduler.data.type.WarnType;
 import com.portfolio.weather.scheduler.utils.BaseDateTimeUtil;
 import org.junit.jupiter.api.DisplayName;
