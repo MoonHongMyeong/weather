@@ -22,10 +22,8 @@
             )) AS source (
                 reg_id, tm_fc, tm_ef, mod, stn, sky, pre, conf, wf, rn_st, created_at
             )
-            ON target.reg_id = source.reg_id 
-                AND target.tm_fc = source.tm_fc 
-                AND target.tm_ef = source.tm_ef
-                AND target.mod = source.mod
+            ON target.tm_ef = source.tm_ef
+                AND target.stn = source.stn
             WHEN MATCHED THEN
                 UPDATE SET 
                     sky = source.sky,
@@ -76,38 +74,37 @@
                 #{max_h},
                 CURRENT_TIMESTAMP
             )) AS source (
-                reg_id, tm_fc, tm_ef, mod, stn, min, max, min_l, min_h, max_l, max_h, created_at
+                reg_id, tm_fc, tm_ef, mod, stn, min_temp, max_temp, min_l, min_h, max_l, max_h, created_at
             )
-            ON target.reg_id = source.reg_id 
-                AND target.tm_fc = source.tm_fc 
-                AND target.tm_ef = source.tm_ef
+            ON target.tm_ef = source.tm_ef
+                AND target.stn = source.stn
             WHEN MATCHED THEN
                 UPDATE SET 
-                    min = source.min,
-                    max = source.max,
+                    min_temp = source.min_temp,
+                    max_temp = source.max_temp,
                     min_l = source.min_l,
                     min_h = source.min_h,
                     max_l = source.max_l,
                     max_h = source.max_h,
                     created_at = source.created_at
             WHEN NOT MATCHED THEN
-                INSERT (reg_id, tm_fc, tm_ef, mod, stn, min, max, min_l, min_h, max_l, max_h, created_at)
+                INSERT (reg_id, tm_fc, tm_ef, mod, stn, min_temp, max_temp, min_l, min_h, max_l, max_h, created_at)
                 VALUES (source.reg_id, source.tm_fc, source.tm_ef, source.mod, source.stn,
-                       source.min, source.max, source.min_l, source.min_h, source.max_l, source.max_h, 
+                       source.min_temp, source.max_temp, source.min_l, source.min_h, source.max_l, source.max_h,
                        source.created_at)
         </if>
 
         /* PostgreSQL */
         <if test="_databaseId == 'postgresql'">
             INSERT INTO mid_forecast (
-                reg_id, tm_fc, tm_ef, mod, stn, min, max, min_l, min_h, max_l, max_h, created_at
+                reg_id, tm_fc, tm_ef, mod, stn, min_temp, max_temp, min_l, min_h, max_l, max_h, created_at
             ) VALUES (
                 #{reg_id}, #{tm_fc}, #{tm_ef}, #{mod}, #{stn},
                 #{min}, #{max}, #{min_l}, #{min_h}, #{max_l}, #{max_h}, CURRENT_TIMESTAMP
             ) ON CONFLICT (reg_id, tm_fc, tm_ef) 
             DO UPDATE SET
-                min = EXCLUDED.min,
-                max = EXCLUDED.max,
+                min_temp = EXCLUDED.min,
+                max_temp = EXCLUDED.max,
                 min_l = EXCLUDED.min_l,
                 min_h = EXCLUDED.min_h,
                 max_l = EXCLUDED.max_l,
