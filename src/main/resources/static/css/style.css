@@ -1,0 +1,44 @@
+header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.forecast-container {
+    width: 80%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.warning-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(255, 69, 58, 0.9);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.warning-message.show {
+    display: block;
+    opacity: 1;
+}
