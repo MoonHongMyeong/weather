@@ -22,21 +22,20 @@ CREATE TABLE mid_forecast (
     tm_ef VARCHAR(12) NOT NULL,          -- 예보시각
     mod VARCHAR(3) NOT NULL,             -- 발표시간코드
     stn INT NOT NULL,                    -- 발표관서
-    c INT,                               -- 신뢰도
     sky VARCHAR(4),                      -- 하늘상태코드
     pre VARCHAR(4),                      -- 강수형태코드
     conf VARCHAR(10),                    -- 신뢰도
     wf VARCHAR(20),                      -- 날씨
     rn_st INT DEFAULT 0,                 -- 강수확률
-    min_temp INT,                             -- 최저기온
-    max_temp INT,                             -- 최고기온
+    min_temp INT,                        -- 최저기온
+    max_temp INT,                        -- 최고기온
     min_l INT DEFAULT 0,                 -- 최저기온 하한
     min_h INT DEFAULT 0,                 -- 최저기온 상한
     max_l INT DEFAULT 0,                 -- 최고기온 하한
     max_h INT DEFAULT 0,                 -- 최고기온 상한
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    CONSTRAINT pk_mid_forecast PRIMARY KEY (reg_id, tm_ef, mod)
+    CONSTRAINT pk_mid_forecast PRIMARY KEY (tm_ef, stn)
 );
 
 -- 기상특보 테이블
