@@ -4,18 +4,21 @@
 
     <select id="selectLatestShortTermForecast" resultType="map">
         <![CDATA[
-        SELECT fcst_date, 
-               fcst_time, 
-               category, 
-               fcst_value
-          FROM short_forecast
-         WHERE nx = #{nx} 
+        WITH time_range AS (
+            SELECT TO_CHAR(now(), 'YYYYMMDDHH24') as start_time,
+                   TO_CHAR(now() + INTERVAL '1' DAY, 'YYYYMMDDHH24') as end_time
+        )
+        SELECT category,
+               fcst_value,
+               fcst_date || fcst_time || '00' as fcst_datetime
+          FROM short_forecast sf
+          JOIN time_range tr
+         WHERE nx = #{nx}
            AND ny = #{ny}
+           AND fcst_value != '-999'
+           AND category IN ('TMP', 'SKY', 'POP', 'PCP')
+           AND fcst_date || fcst_time BETWEEN tr.start_time AND tr.end_time
            AND base_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
-           AND base_time = (SELECT MAX(base_time)
-                             FROM short_forecast
-                            WHERE base_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
-                           )
         ORDER BY fcst_date, fcst_time, category
         ]]>
     </select>
@@ -30,19 +33,17 @@
             A.CONF, 
             A.WF, 
             A.RN_ST,
-            B.MIN,
-            B.MAX,
-            B.MIN_L,
-            B.MIN_H,
-            B.MAX_L,
-            B.MAX_H
-        FROM MID_FORECAST A
-        LEFT JOIN MID_FORECAST B 
-            ON LEFT(A.TM_EF, 8) = LEFT(B.TM_EF, 8) 
-            AND B.MOD = 'A01'
-        WHERE A.TM_EF > TO_CHAR(TRUNC(now() + 3), 'YYYYMMDDHHmm')
-            AND A.MOD = 'A02'
-        ORDER BY A.TM_EF;
+            A.MIN_TEMP,
+            A.MAX_TEMP,
+            A.MIN_L,
+            A.MIN_H,
+            A.MAX_L,
+            A.MAX_H
+          FROM MID_FORECAST A
+         WHERE A.TM_EF BETWEEN TO_CHAR(TRUNC(now() + INTERVAL '1' DAY), 'YYYYMMDD')
+                          AND TO_CHAR(TRUNC(now() + INTERVAL '7' DAY), 'YYYYMMDD')
+           AND A.STN = #{stationId}
+        ORDER BY A.TM_EF
         ]]>
     </select>
 
@@ -56,26 +57,28 @@
                GRD, 
                CNT
           FROM weather_warn
-         WHERE TM_FC > TRUNC(now());
+         WHERE TM_FC > TRUNC(now())
+           AND STN = #{stationId}
         ]]>
     </select>
 
     <select id="selectIndex" resultType="map">
         <![CDATA[
         WITH ranked_data AS (
-            SELECT 
-                    code,
-                    fcst_date,
-                    fcst_value,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY code 
-                        ORDER BY ABS(
-                            TIMESTAMPDIFF('MINUTE', 
-                                NOW(), 
-                                PARSEDATETIME(fcst_date, 'yyyyMMddHH')
-                            )
-                    ) as rn
-              FROM environmental_index
+                SELECT
+                code,
+                fcst_date,
+                fcst_value,
+                ROW_NUMBER() OVER (
+                    PARTITION BY code 
+                    ORDER BY ABS(
+                        TIMESTAMPDIFF('MINUTE', 
+                            NOW(), 
+                            PARSEDATETIME(fcst_date, 'yyyyMMddHH')
+                        )
+                    )
+                ) AS rn
+            FROM environmental_index
             WHERE area_no = #{areaNo}
         )
         SELECT code, 
