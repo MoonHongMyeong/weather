@@ -33,10 +33,10 @@ public class VillageFcstInfoService {
     private String VILLAGE_FORECAST_URL;
 
     public void fetchAndSaveShrt(String nx, String ny) {
-        int SHRT_ROWS = 14;
+        int SHRT_ROWS = SHRT.values().length;
         // 1. API 호출
         LocalDateTime now = LocalDateTime.now();
-        int numOfRows = SHRT_ROWS * 3; // 3시간 후까지 조회
+        int numOfRows = SHRT_ROWS * 24; // 24시간 후까지 조회
         String apiUrl = VILLAGE_FORECAST_URL +
                 "?authKey=" + AUTH_KEY +
                 "&numOfRows=" + numOfRows +
