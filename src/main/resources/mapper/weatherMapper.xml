@@ -18,7 +18,6 @@
            AND fcst_value != '-999'
            AND category IN ('TMP', 'SKY', 'POP', 'PCP')
            AND fcst_date || fcst_time BETWEEN tr.start_time AND tr.end_time
-           AND base_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
         ORDER BY fcst_date, fcst_time, category
         ]]>
     </select>
@@ -87,6 +86,18 @@
           FROM ranked_data
          WHERE rn = 1
         ORDER BY code
+        ]]>
+    </select>
+
+    <select id="selectPopupShortTermForecast" resultType="map">
+        <![CDATA[
+        SELECT * 
+          FROM short_forecast 
+         WHERE nx = #{nx} 
+           AND ny = #{ny}
+           AND category IN ('TMP', 'POP', 'REH')
+           AND fcst_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
+           AND fcst_time = TO_CHAR(TRUNC(now()), 'HH24')||'00'
         ]]>
     </select>
 </mapper>

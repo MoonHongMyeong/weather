@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -69,5 +66,12 @@ public class WeatherApiController {
             log.error("이미지 조회 실패: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/forecast/popup")
+    public ResponseEntity<List<Map<String, Object>>> getPopupShortTermForecast(
+            @RequestParam(name = "nx") int nx,
+            @RequestParam(name = "ny") int ny) {
+        return ResponseEntity.ok(weatherService.getPopupShortTermForecast(nx, ny));
     }
 }

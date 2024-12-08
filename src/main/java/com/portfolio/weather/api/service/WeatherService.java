@@ -54,4 +54,8 @@ public class WeatherService {
 
         return indexes;
     }
+
+    public List<Map<String, Object>> getPopupShortTermForecast(int nx, int ny) {
+        return weatherMapper.selectPopupShortTermForecast(nx, ny);
+    }
 }

@@ -17,4 +17,6 @@ public interface WeatherMapper {
     
     List<Map<String, Object>> selectIndex(@Param("areaNo") String areaNo);
 
+    List<Map<String, Object>> selectPopupShortTermForecast(@Param("nx") int nx, @Param("ny") int ny);
+
 }
