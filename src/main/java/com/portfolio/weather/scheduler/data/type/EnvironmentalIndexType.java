@@ -6,16 +6,25 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public enum EnvironmentalIndexType {
-    A07_2("자외선", "UV", "Ultraviolet"),
-    A09("대기정체", "AD", "AirDiffusion");
+    UV("자외선", "A07_2", "Ultraviolet"),
+    AD("대기정체", "A09", "AirDiffusion");
 
     private String description;
-    private String name;
+    private String code;
     private String fullName;
 
-    EnvironmentalIndexType(String description, String name, String fullName){
+    EnvironmentalIndexType(String description, String code, String fullName){
         this.description = description;
-        this.name = name;
+        this.code = code;
         this.fullName = fullName;
+    }
+
+    public static EnvironmentalIndexType fromCode(String code){
+        for (EnvironmentalIndexType type : EnvironmentalIndexType.values()){
+            if(type.code.equals(code)){
+                return type;
+            }
+        }
+        return null;
     }
 }

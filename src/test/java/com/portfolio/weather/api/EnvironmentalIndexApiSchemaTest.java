@@ -100,7 +100,7 @@ class EnvironmentalIndexApiSchemaTest {
                 .containsKey("date");
 
         // 데이터 값 검증
-        assertThat(firstItem.get("code")).isEqualTo(EnvironmentalIndexType.A07_2.name());
+        assertThat(firstItem.get("code")).isEqualTo(EnvironmentalIndexType.UV.getCode());
         assertThat(firstItem.get("areaNo")).isEqualTo(areaNo);
         assertThat((String) firstItem.get("date")).matches("\\d{10}"); // yyyyMMddHH 형식
 
@@ -208,7 +208,7 @@ class EnvironmentalIndexApiSchemaTest {
                 .containsKey("date");
 
         // 데이터 값 검증
-        assertThat(firstItem.get("code")).isEqualTo(EnvironmentalIndexType.A09.name());
+        assertThat(firstItem.get("code")).isEqualTo(EnvironmentalIndexType.AD.getCode());
         assertThat(firstItem.get("areaNo")).isEqualTo(areaNo);
         assertThat((String) firstItem.get("date")).matches("\\d{10}"); // yyyyMMddHH 형식
 

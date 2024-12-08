@@ -76,7 +76,7 @@
             )) AS source (
                 reg_id, tm_fc, tm_ef, mod, stn, min_temp, max_temp, min_l, min_h, max_l, max_h, created_at
             )
-            ON target.tm_ef = source.tm_ef
+            ON SUBSTRING(target.tm_ef, 1, 8) = SUBSTRING(source.tm_ef, 1, 8)
                 AND target.stn = source.stn
             WHEN MATCHED THEN
                 UPDATE SET 
