@@ -39,3 +39,4 @@ out/
 ### api ###
 application-api.yml
 test.properties
+application-prod.yml

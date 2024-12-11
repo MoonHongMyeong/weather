@@ -22,6 +22,26 @@
         ]]>
     </select>
 
+    <select id="selectLatestShortTermForecast" resultType="map" databaseId="mssql">
+        <![CDATA[
+        WITH time_range AS (
+            SELECT FORMAT(GETDATE(), 'yyyyMMddHH') as start_time,
+                   FORMAT(DATEADD(DAY, 1, GETDATE()), 'yyyyMMddHH') as end_time
+        )
+        SELECT category,
+               fcst_value,
+               fcst_date + fcst_time + '00' as fcst_datetime
+          FROM short_forecast sf
+          JOIN time_range tr
+         WHERE nx = #{nx}
+           AND ny = #{ny}
+           AND fcst_value != '-999'
+           AND category IN ('TMP', 'SKY', 'POP', 'PCP')
+           AND fcst_date + fcst_time BETWEEN tr.start_time AND tr.end_time
+        ORDER BY fcst_date, fcst_time, category
+        ]]>
+    </select>
+
     <select id="selectLatestMidTermForecast" resultType="map">
         <![CDATA[
         SELECT 
@@ -46,6 +66,30 @@
         ]]>
     </select>
 
+    <select id="selectLatestMidTermForecast" resultType="map" databaseId="mssql">
+        <![CDATA[
+        SELECT 
+            A.STN, 
+            A.TM_EF, 
+            A.SKY, 
+            A.PRE, 
+            A.CONF, 
+            A.WF, 
+            A.RN_ST,
+            A.MIN_TEMP,
+            A.MAX_TEMP,
+            A.MIN_L,
+            A.MIN_H,
+            A.MAX_L,
+            A.MAX_H
+          FROM MID_FORECAST A
+         WHERE A.TM_EF BETWEEN FORMAT(GETDATE(), 'yyyyMMdd')
+                          AND FORMAT(DATEADD(DAY, 7, GETDATE()), 'yyyyMMdd')
+           AND A.STN = #{stationId}
+        ORDER BY A.TM_EF
+        ]]>
+    </select>
+
     <!-- 기상특보 조회 -->
     <select id="selectLatestWarning" resultType="map">
         <![CDATA[
@@ -57,6 +101,20 @@
                CNT
           FROM weather_warn
          WHERE TM_FC > TRUNC(now())
+           AND STN = #{stationId}
+        ]]>
+    </select>
+
+    <select id="selectLatestWarning" resultType="map" databaseId="mssql">
+        <![CDATA[
+        SELECT TM_EF, 
+               WRN, 
+               LVL, 
+               CMD, 
+               GRD, 
+               CNT
+          FROM weather_warn
+         WHERE TM_FC > FORMAT(GETDATE(), 'yyyyMMdd')
            AND STN = #{stationId}
         ]]>
     </select>
@@ -89,15 +147,55 @@
         ]]>
     </select>
 
+    <select id="selectIndex" resultType="map" databaseId="mssql">
+        <![CDATA[
+        WITH ranked_data AS (
+                SELECT
+                code,
+                fcst_date,
+                fcst_value,
+                ROW_NUMBER() OVER (
+                    PARTITION BY code 
+                    ORDER BY ABS(
+                        DATEDIFF(MINUTE, 
+                            GETDATE(), 
+                            TRY_CONVERT(datetime2, fcst_date, 112)
+                        )
+                    )
+                ) AS rn
+            FROM environmental_index
+            WHERE area_no = #{areaNo}
+        )
+        SELECT code, 
+               fcst_date, 
+               fcst_value
+          FROM ranked_data
+         WHERE rn = 1
+        ORDER BY code
+        ]]>
+    </select> 
+
     <select id="selectPopupShortTermForecast" resultType="map">
         <![CDATA[
-        SELECT * 
+        SELECT nx, ny, fcst_date, fcst_time, category, fcst_value
           FROM short_forecast 
          WHERE nx = #{nx} 
            AND ny = #{ny}
            AND category IN ('TMP', 'POP', 'REH')
            AND fcst_date = TO_CHAR(TRUNC(now()), 'YYYYMMDD')
            AND fcst_time = TO_CHAR(TRUNC(now()), 'HH24')||'00'
+        ]]>
+    </select>
+
+    <select id="selectPopupShortTermForecast" resultType="map" databaseId="mssql">
+        <![CDATA[
+        SELECT nx, ny, fcst_date, fcst_time, category, fcst_value
+          FROM short_forecast 
+         WHERE nx = #{nx} 
+           AND ny = #{ny}
+           AND category IN ('TMP', 'POP', 'REH')
+           AND fcst_date = FORMAT(GETDATE(), 'yyyyMMdd')
+           AND fcst_time = FORMAT(GETDATE(), 'HH24') + '00'
         ]]>
     </select>
 </mapper>

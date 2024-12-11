@@ -4,7 +4,6 @@
 
 <mapper namespace="com.portfolio.weather.scheduler.mapper.MidForecastMapper">
     <insert id="mergeMidLandFcst" parameterType="map">
-        /* H2 Database */
         <if test="_databaseId == 'h2'">
             MERGE INTO mid_forecast AS target
             USING (VALUES (
@@ -38,7 +37,6 @@
                        source.sky, source.pre, source.conf, source.wf, source.rn_st, source.created_at)
         </if>
 
-        /* PostgreSQL */
         <if test="_databaseId == 'postgresql'">
             INSERT INTO mid_forecast (
                 reg_id, tm_fc, tm_ef, mod, stn, sky, pre, conf, wf, rn_st, created_at
@@ -54,10 +52,17 @@
                 rn_st = EXCLUDED.rn_st,
                 created_at = CURRENT_TIMESTAMP
         </if>
+
+        <if test="_databaseId == 'mssql'">
+            MERGE INTO mid_forecast KEY (reg_id, tm_fc, tm_ef, mod)
+            VALUES (
+                #{reg_id}, #{tm_fc}, #{tm_ef}, #{mod},
+                #{sky}, #{pre}, #{conf}, #{wf}, #{rn_st}, CURRENT_TIMESTAMP
+            )
+        </if>
     </insert>
 
     <insert id="mergeMidTempFcst" parameterType="map">
-        /* H2 Database */
         <if test="_databaseId == 'h2'">
             MERGE INTO mid_forecast AS target
             USING (VALUES (
@@ -94,7 +99,6 @@
                        source.created_at)
         </if>
 
-        /* PostgreSQL */
         <if test="_databaseId == 'postgresql'">
             INSERT INTO mid_forecast (
                 reg_id, tm_fc, tm_ef, mod, stn, min_temp, max_temp, min_l, min_h, max_l, max_h, created_at
@@ -111,5 +115,14 @@
                 max_h = EXCLUDED.max_h,
                 created_at = CURRENT_TIMESTAMP
         </if>
+
+        <if test="_databaseId == 'mssql'">
+            MERGE INTO mid_forecast KEY (reg_id, tm_fc, tm_ef)
+            VALUES (
+                #{reg_id}, #{tm_fc}, #{tm_ef}, #{mod},
+                #{min}, #{max}, #{min_l}, #{min_h}, #{max_l}, #{max_h}, CURRENT_TIMESTAMP
+            )
+        </if>
     </insert>
+
 </mapper>
