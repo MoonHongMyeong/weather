@@ -2,5 +2,9 @@ spring:
   application:
     name: weather
   profiles:
+    group:
+      local:
+        - local
+        - api
     active: local
 
