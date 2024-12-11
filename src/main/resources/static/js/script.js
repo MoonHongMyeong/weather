@@ -168,7 +168,7 @@ const renderMidTermForecast = (data) => {
         const minTempPosition = ((item.MIN_TEMP - minTemp) / tempRange) * 80 + 10;
 
         html += `       <div class="forecast-item">`;
-        html += `           <span class="${convertToDays(item.TM_EF) === '토' ? 'blue' : ''}" ${convertToDays(item.TM_EF) === '일' ? 'red' : ''}>${convertToDays(item.TM_EF)} </span>`;
+        html += `           <span class="${convertToDays(item.TM_EF) === '토' ? 'blue' : convertToDays(item.TM_EF) === '일' ? 'red' : ''}">${convertToDays(item.TM_EF)} </span>`;
         html += `           <span>${item.TM_EF.slice(8, 10) === '00' ? '오전' : '오후'}</span>`;
         html += `           <span>${getWeatherDescription(item.SKY)}</span>`;
         html += `           <div class="min-max-temp-bar">
