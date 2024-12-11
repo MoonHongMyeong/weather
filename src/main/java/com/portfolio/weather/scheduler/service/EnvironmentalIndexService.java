@@ -55,16 +55,17 @@ public class EnvironmentalIndexService {
                 LocalDateTime current = LocalDateTime.parse((String) item.get("date")
                                                             , DateTimeFormatter.ofPattern("yyyyMMddHH"))
                                                      .plusHours(i);
-                index.put("code", EnvironmentalIndexType.valueOf((String) item.get("code")).getName());
+                index.put("code", EnvironmentalIndexType.fromCode((String) item.get("code")));
                 index.put("areaNo", item.get("areaNo"));
                 index.put("fcst_date", current.format(DateTimeFormatter.ofPattern("yyyyMMddHH")));
                 index.put("fcst_value", item.get("h"+i));
-                System.out.println(index);
-                try{
-                    indexMapper.mergeIndex(index);
-                } catch (PersistenceException e){
-                    log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
-                            item.get("areaNo"), e.getMessage());
+                if (index.get("fcst_value") != null) {
+                    try{
+                        indexMapper.mergeIndex(index);
+                    } catch (PersistenceException e){
+                        log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
+                                item.get("areaNo"), e.getMessage());
+                    }
                 }
             }
         });
@@ -91,17 +92,17 @@ public class EnvironmentalIndexService {
                 LocalDateTime current = LocalDateTime.parse((String) item.get("date")
                                 , DateTimeFormatter.ofPattern("yyyyMMddHH"))
                         .plusHours(i);
-                index.put("code", EnvironmentalIndexType.valueOf((String) item.get("code")).getName());
+                index.put("code", EnvironmentalIndexType.fromCode((String) item.get("code")));
                 index.put("areaNo", item.get("areaNo"));
                 index.put("fcst_date", current.format(DateTimeFormatter.ofPattern("yyyyMMddHH")));
                 index.put("fcst_value", item.get("h"+i));
-                System.out.println(i);
-                System.out.println(index);
-                try{
-                    indexMapper.mergeIndex(index);
-                } catch (PersistenceException e){
-                    log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
-                            item.get("areaNo"), e.getMessage());
+                if(index.get("fcst_value") != null){
+                    try{
+                        indexMapper.mergeIndex(index);
+                    } catch (PersistenceException e){
+                        log.warn("DB 저장 중 에러 발생 - areaNo: {}, error: {}",
+                                item.get("areaNo"), e.getMessage());
+                    }
                 }
             }
         });

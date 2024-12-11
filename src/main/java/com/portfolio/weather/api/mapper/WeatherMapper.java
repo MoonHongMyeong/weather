@@ -11,10 +11,12 @@ public interface WeatherMapper {
 
     List<Map<String, Object>> selectLatestShortTermForecast(@Param("nx") String nx, @Param("ny") String ny);
 
-    List<Map<String, Object>> selectLatestMidTermForecast(@Param("regionId") String regionId);
+    List<Map<String, Object>> selectLatestMidTermForecast(@Param("stationId") int stationId);
 
-    List<Map<String, Object>> selectLatestWarning(@Param("regionId") String regionId);
+    List<Map<String, Object>> selectLatestWarning(@Param("stationId") int stationId);
     
     List<Map<String, Object>> selectIndex(@Param("areaNo") String areaNo);
+
+    List<Map<String, Object>> selectPopupShortTermForecast(@Param("nx") int nx, @Param("ny") int ny);
 
 }

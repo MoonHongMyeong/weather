@@ -44,14 +44,16 @@ public class MybatisConfig {
         configuration.setAutoMappingBehavior(AutoMappingBehavior.PARTIAL);
         
         // 로깅 설정 추가
-        configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
-        configuration.setLogPrefix("MyBatis SQL ==> ");
-        
+        //configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
+        //configuration.setLogPrefix("MyBatis SQL ==> ");
+
         // DatabaseIdProvider 설정
         VendorDatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider();
         Properties properties = new Properties();
         properties.setProperty("H2", "h2");
         properties.setProperty("PostgreSQL", "postgresql");
+        properties.setProperty("Microsoft SQL Server", "mssql");  
+        properties.setProperty("Azure SQL Database", "mssql");
         databaseIdProvider.setProperties(properties);
         
         // 현재 데이터베이스 ID 확인을 위한 로깅

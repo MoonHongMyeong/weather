@@ -4,7 +4,6 @@
 
 <mapper namespace="com.portfolio.weather.scheduler.mapper.WeatherWarnMapper">
     <insert id="mergeWeatherWarn" parameterType="map">
-        /* H2 Database */
         <if test="_databaseId == 'h2'">
             MERGE INTO weather_warn AS target
             USING (VALUES (
@@ -40,7 +39,6 @@
                        source.wrn, source.lvl, source.cmd, source.grd, source.cnt, source.created_at)
         </if>
 
-        /* PostgreSQL */
         <if test="_databaseId == 'postgresql'">
             INSERT INTO weather_warn (
                 reg_id, tm_fc, tm_ef, tm_in, stn, wrn, lvl, cmd, grd, cnt, created_at
@@ -55,6 +53,14 @@
                 grd = EXCLUDED.grd,
                 cnt = EXCLUDED.cnt,
                 created_at = CURRENT_TIMESTAMP
+        </if>
+
+        <if test="_databaseId == 'mssql'">
+            MERGE INTO weather_warn KEY (reg_id, tm_fc, tm_ef, tm_in)
+            VALUES (
+                #{reg_id}, #{tm_fc}, #{tm_ef}, #{tm_in}, #{stn},
+                #{wrn}, #{lvl}, #{cmd}, #{grd}, #{cnt}, CURRENT_TIMESTAMP
+            )
         </if>
     </insert>
 </mapper>

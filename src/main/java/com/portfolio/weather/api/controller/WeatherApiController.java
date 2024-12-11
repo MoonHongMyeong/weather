@@ -34,22 +34,20 @@ public class WeatherApiController {
     public ResponseEntity<List<Map<String, Object>>> getMidTermForecast(
             @PathVariable(name = "location") String requestedLocation) {
         Location location = Location.valueOf(requestedLocation);
-        return ResponseEntity.ok(weatherService.getMidTermForecast(location.getRegionId()));
+        return ResponseEntity.ok(weatherService.getMidTermForecast(location.getStationId()));
     }
 
-    @GetMapping("/warnings")
+    @GetMapping("/warnings/{location}")
     public ResponseEntity<List<Map<String, Object>>> getWeatherWarnings(
             @PathVariable(name = "location") String requestedLocation) {
         Location location = Location.valueOf(requestedLocation);
-        return ResponseEntity.ok(weatherService.getWeatherWarnings(location.getWarnRegionId()));
+        return ResponseEntity.ok(weatherService.getWeatherWarnings(location.getStationId()));
     }
 
     @GetMapping("/index/{location}")
     public ResponseEntity<List<Map<String, Object>>> getIndex(
             @PathVariable(name = "location") String requestedLocation) {
         Location location = Location.valueOf(requestedLocation);
-        log.warn(location.name());
-        log.warn(requestedLocation);
         return ResponseEntity.ok(weatherService.getIndex(location.getAreaNo()));
     }
 
@@ -68,5 +66,12 @@ public class WeatherApiController {
             log.error("이미지 조회 실패: {}", e.getMessage());
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/forecast/popup")
+    public ResponseEntity<List<Map<String, Object>>> getPopupShortTermForecast(
+            @RequestParam(name = "nx") int nx,
+            @RequestParam(name = "ny") int ny) {
+        return ResponseEntity.ok(weatherService.getPopupShortTermForecast(nx, ny));
     }
 }

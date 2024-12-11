@@ -38,7 +38,7 @@ public class ImageProxyService {
             case SATELLITE -> SATLLEITE_IMAGE_URL +
                     "?authKey=" + AUTH_KEY +
                     "&tm=" + baseTime +
-                    "&obs=ir105&legend=0&size=300";
+                    "&obs=ir105&map=HR&legend=0&size=300&itv=5&zoom_level=11&zoom_x=35&zoom_y=30";
 
             case RADAR -> RADAR_IMAGE_URL +
                     "?authKey=" + AUTH_KEY +

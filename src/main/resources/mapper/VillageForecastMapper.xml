@@ -4,7 +4,6 @@
 
 <mapper namespace="com.portfolio.weather.scheduler.mapper.VillageForecastMapper">
     <insert id="mergeShrt" parameterType="map">
-        /* H2 Database */
         <if test="_databaseId == 'h2'">
             MERGE INTO short_forecast AS target
             USING (VALUES (
@@ -37,7 +36,6 @@
                        source.fcst_time, source.category, source.fcst_value, source.created_at)
         </if>
         
-        /* PostgreSQL */
         <if test="_databaseId == 'postgresql'">
             INSERT INTO short_forecast (
                 nx, ny, base_date, base_time, fcst_date, fcst_time, category, fcst_value, created_at
@@ -50,6 +48,14 @@
                 base_time = EXCLUDED.base_time,
                 fcst_value = EXCLUDED.fcst_value,
                 created_at = CURRENT_TIMESTAMP
+        </if>
+
+        <if test="_databaseId == 'mssql'">
+            MERGE INTO short_forecast KEY (nx, ny, fcst_date, fcst_time, category)
+            VALUES (
+                #{nx}, #{ny}, #{fcstDate}, #{fcstTime}, #{category},
+                #{fcstValue}, CURRENT_TIMESTAMP
+            )
         </if>
     </insert>
 </mapper>
