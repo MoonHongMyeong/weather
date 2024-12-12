@@ -82,13 +82,13 @@
                     cmd = source.cmd,
                     grd = source.grd,
                     cnt = source.cnt,
-                    created_at = CURRENT_TIMESTAMP
+                    created_at = dbo.convertToSeoulTime(GETDATE())
             WHEN NOT MATCHED THEN
                 INSERT (reg_id, tm_fc, tm_ef, tm_in, stn, wrn, lvl, cmd, grd, cnt, created_at)
                 VALUES (
                     source.reg_id, source.tm_fc, source.tm_ef, source.tm_in, 
                     source.stn, source.wrn, source.lvl, source.cmd, 
-                    source.grd, source.cnt, CURRENT_TIMESTAMP
+                    source.grd, source.cnt, dbo.convertToSeoulTime(GETDATE())
                 );
         </if>
     </insert>

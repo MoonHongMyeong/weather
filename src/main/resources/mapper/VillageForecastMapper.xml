@@ -74,13 +74,13 @@
                     base_date = source.base_date,
                     base_time = source.base_time,
                     fcst_value = source.fcst_value,
-                    created_at = CURRENT_TIMESTAMP
+                    created_at = dbo.convertToSeoulTime(GETDATE())
             WHEN NOT MATCHED THEN
                 INSERT (nx, ny, base_date, base_time, fcst_date, fcst_time, category, fcst_value, created_at)
                 VALUES (
                     source.nx, source.ny, source.base_date, source.base_time, 
                     source.fcst_date, source.fcst_time, source.category, 
-                    source.fcst_value, CURRENT_TIMESTAMP
+                    source.fcst_value, dbo.convertToSeoulTime(GETDATE())
                 );
         </if>
     </insert>

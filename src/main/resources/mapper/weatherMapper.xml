@@ -32,7 +32,7 @@
            AND ny = #{ny}
            AND fcst_value != '-999'
            AND category IN ('TMP', 'SKY', 'POP', 'PCP')
-           AND fcst_date + fcst_time BETWEEN FORMAT(GETDATE(), 'yyyyMMddHH') AND FORMAT(DATEADD(DAY, 1, GETDATE()), 'yyyyMMddHH')
+           AND fcst_date + fcst_time BETWEEN FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMddHH') AND FORMAT(DATEADD(DAY, 1, dbo.convertToSeoulTime(GETDATE())), 'yyyyMMddHH')
         ORDER BY fcst_date, fcst_time, category;
         ]]>
     </select>
@@ -78,8 +78,8 @@
             A.MAX_L,
             A.MAX_H
           FROM MID_FORECAST A
-         WHERE A.TM_EF BETWEEN FORMAT(GETDATE(), 'yyyyMMdd')
-                          AND FORMAT(DATEADD(DAY, 7, GETDATE()), 'yyyyMMdd')
+         WHERE A.TM_EF BETWEEN FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMdd')
+                          AND FORMAT(DATEADD(DAY, 7, dbo.convertToSeoulTime(GETDATE())), 'yyyyMMdd')
            AND A.STN = #{stationId}
         ORDER BY A.TM_EF;
         ]]>
@@ -109,7 +109,7 @@
                GRD, 
                CNT
           FROM weather_warn
-         WHERE TM_FC > FORMAT(GETDATE(), 'yyyyMMdd')
+         WHERE TM_FC > FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMdd')
            AND STN = #{stationId};
         ]]>
     </select>
@@ -153,7 +153,7 @@
                     PARTITION BY code 
                     ORDER BY ABS(
                         DATEDIFF(MINUTE, 
-                            GETDATE(), 
+                            dbo.convertToSeoulTime(GETDATE()), 
                             TRY_CONVERT(datetime2, fcst_date, 112)
                         )
                     )
@@ -189,8 +189,8 @@
          WHERE nx = #{nx} 
            AND ny = #{ny}
            AND category IN ('TMP', 'POP', 'REH')
-           AND fcst_date = FORMAT(GETDATE(), 'yyyyMMdd')
-           AND fcst_time = FORMAT(GETDATE(), 'HH24') + '00';
+           AND fcst_date = FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMdd')
+           AND fcst_time = FORMAT(dbo.convertToSeoulTime(GETDATE()), 'HH24') + '00';
         ]]>
     </select>
 </mapper>

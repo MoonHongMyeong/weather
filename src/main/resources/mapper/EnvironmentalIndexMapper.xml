@@ -45,7 +45,7 @@
         WHEN MATCHED THEN
             UPDATE SET 
                 fcst_value = source.fcst_value,
-                created_at = CURRENT_TIMESTAMP
+                created_at = dbo.convertToSeoulTime(GETDATE())
         WHEN NOT MATCHED THEN
             INSERT (code, area_no, fcst_date, fcst_value, created_at)
             VALUES (
@@ -53,7 +53,7 @@
                 source.area_no,
                 source.fcst_date,
                 source.fcst_value,
-                CURRENT_TIMESTAMP
+                dbo.convertToSeoulTime(GETDATE())
             );
     </insert>
 </mapper>

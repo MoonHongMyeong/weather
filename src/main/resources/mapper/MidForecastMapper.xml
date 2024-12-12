@@ -170,13 +170,13 @@
                     min_h = source.min_h,
                     max_l = source.max_l,
                     max_h = source.max_h,
-                    created_at = CURRENT_TIMESTAMP
+                    created_at = dbo.convertToSeoulTime(GETDATE())
             WHEN NOT MATCHED THEN
                 INSERT (reg_id, tm_fc, tm_ef, mod, stn, min_temp, max_temp, min_l, min_h, max_l, max_h, created_at)
                 VALUES (
                     source.reg_id, source.tm_fc, source.tm_ef, source.mod, source.stn,
                     source.min_temp, source.max_temp, source.min_l, source.min_h,
-                    source.max_l, source.max_h, CURRENT_TIMESTAMP
+                    source.max_l, source.max_h, dbo.convertToSeoulTime(GETDATE())
                 );
         </if>
     </insert>
