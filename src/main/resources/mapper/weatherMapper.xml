@@ -190,7 +190,7 @@
            AND ny = #{ny}
            AND category IN ('TMP', 'POP', 'REH')
            AND fcst_date = FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMdd')
-           AND fcst_time = FORMAT(dbo.convertToSeoulTime(GETDATE()), 'HH24') + '00';
+           AND fcst_time = FORMAT(dbo.convertToSeoulTime(GETDATE()), 'HH') + '00';
         ]]>
     </select>
 </mapper>
