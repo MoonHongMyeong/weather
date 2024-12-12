@@ -46,6 +46,7 @@ public class WeatherScheduler {
     public void executeMidLandForecast(){
         for (Location location : Location.values()){
             midFcstInfoService.fetchAndSaveMidLandForecast(location.getUpperRegionId());
+            log.info("중기육상예보 조회 완료 - 지역: {}, 지역번호: {}", location.name(),location.getUpperRegionId());
         }
     }
 
@@ -56,6 +57,7 @@ public class WeatherScheduler {
     public void executeMidTemperature(){
         for (Location location : Location.values()){
             midFcstInfoService.fetchAndSaveMidTempForecast(location.getRegionId());
+            log.info("중기기온예보 조회 완료 - 지역: {}, 지역번호: {}", location.name(),location.getRegionId());
         }
     }
 
@@ -66,6 +68,7 @@ public class WeatherScheduler {
     public void executeWeatherWarning(){
         for (Location location : Location.values()){
             wthrWrnService.fetchAndSaveWeatherWarning(location.getWarnRegionId());
+            log.info("기상특보 조회 완료 - 지역: {}, 지역번호: {}", location.name(),location.getWarnRegionId());
         }
     }
 
@@ -76,6 +79,7 @@ public class WeatherScheduler {
     public void executeUvIndex(){
         for (Location location : Location.values()){
             indexService.fetchAndSaveUvIndex(location.getAreaNo());
+            log.info("자외선 지수 조회 완료 - 지역: {}, 지역번호: {}", location.name(),location.getAreaNo());
         }
     }
     /**
@@ -85,6 +89,6 @@ public class WeatherScheduler {
     public void executeAirDiffusionIndex(){
         for (Location location : Location.values()){
             indexService.fetchAndSaveAirDiffusionIndex(location.getAreaNo());
-        }
+            log.info("대기정체지수 조회 완료 - 지역: {}, 지역번호: {}", location.name(),location.getAreaNo());
     }
 }
