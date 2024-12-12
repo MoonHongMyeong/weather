@@ -6,5 +6,8 @@ spring:
       local:
         - local
         - api
-    active: local
+      prod:
+        - prod
+        - api
+    active: prod
 
