@@ -90,5 +90,6 @@ public class WeatherScheduler {
         for (Location location : Location.values()){
             indexService.fetchAndSaveAirDiffusionIndex(location.getAreaNo());
             log.info("대기정체지수 조회 완료 - 지역: {}, 지역번호: {}", location.name(),location.getAreaNo());
+        }
     }
 }
