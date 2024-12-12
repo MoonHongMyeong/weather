@@ -67,12 +67,6 @@ public class VillageFcstInfoService {
                 forecast.put("category", category);
                 forecast.put("fcstValue", item.get("fcstValue"));
                 
-                log.info("예보 데이터 - {}: {} ({})", 
-                    shrtCategory.getDescription(), 
-                    item.get("fcstValue"),
-                    item.get("fcstTime")
-                );
-                
                 vfMapper.mergeShrt(forecast);
             } catch (IllegalArgumentException e) {
                 log.warn("알 수 없는 category: {}", category);
