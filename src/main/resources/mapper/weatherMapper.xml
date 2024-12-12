@@ -24,21 +24,16 @@
 
     <select id="selectLatestShortTermForecast" resultType="map" databaseId="mssql">
         <![CDATA[
-        WITH time_range AS (
-            SELECT FORMAT(GETDATE(), 'yyyyMMddHH') as start_time,
-                   FORMAT(DATEADD(DAY, 1, GETDATE()), 'yyyyMMddHH') as end_time
-        )
-        SELECT category,
-               fcst_value,
-               fcst_date + fcst_time + '00' as fcst_datetime
+        SELECT CATEGORY,
+               FCST_VALUE,
+               fcst_date + fcst_time + '00' as FCST_DATETIME
           FROM short_forecast sf
-          JOIN time_range tr
          WHERE nx = #{nx}
            AND ny = #{ny}
            AND fcst_value != '-999'
            AND category IN ('TMP', 'SKY', 'POP', 'PCP')
-           AND fcst_date + fcst_time BETWEEN tr.start_time AND tr.end_time
-        ORDER BY fcst_date, fcst_time, category
+           AND fcst_date + fcst_time BETWEEN FORMAT(GETDATE(), 'yyyyMMddHH') AND FORMAT(DATEADD(DAY, 1, GETDATE()), 'yyyyMMddHH')
+        ORDER BY fcst_date, fcst_time, category;
         ]]>
     </select>
 
@@ -86,7 +81,7 @@
          WHERE A.TM_EF BETWEEN FORMAT(GETDATE(), 'yyyyMMdd')
                           AND FORMAT(DATEADD(DAY, 7, GETDATE()), 'yyyyMMdd')
            AND A.STN = #{stationId}
-        ORDER BY A.TM_EF
+        ORDER BY A.TM_EF;
         ]]>
     </select>
 
@@ -115,7 +110,7 @@
                CNT
           FROM weather_warn
          WHERE TM_FC > FORMAT(GETDATE(), 'yyyyMMdd')
-           AND STN = #{stationId}
+           AND STN = #{stationId};
         ]]>
     </select>
 
@@ -166,12 +161,12 @@
             FROM environmental_index
             WHERE area_no = #{areaNo}
         )
-        SELECT code, 
-               fcst_date, 
-               fcst_value
+        SELECT CODE,
+               FCST_DATE,
+               FCST_VALUE
           FROM ranked_data
          WHERE rn = 1
-        ORDER BY code
+        ORDER BY code;
         ]]>
     </select> 
 
@@ -189,13 +184,13 @@
 
     <select id="selectPopupShortTermForecast" resultType="map" databaseId="mssql">
         <![CDATA[
-        SELECT nx, ny, fcst_date, fcst_time, category, fcst_value
+        SELECT NX, NY, FCST_DATE, FCST_TIME, CATEGORY, FCST_VALUE
           FROM short_forecast 
          WHERE nx = #{nx} 
            AND ny = #{ny}
            AND category IN ('TMP', 'POP', 'REH')
            AND fcst_date = FORMAT(GETDATE(), 'yyyyMMdd')
-           AND fcst_time = FORMAT(GETDATE(), 'HH24') + '00'
+           AND fcst_time = FORMAT(GETDATE(), 'HH24') + '00';
         ]]>
     </select>
 </mapper>

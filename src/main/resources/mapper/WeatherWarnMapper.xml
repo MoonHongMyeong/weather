@@ -56,11 +56,40 @@
         </if>
 
         <if test="_databaseId == 'mssql'">
-            MERGE INTO weather_warn KEY (reg_id, tm_fc, tm_ef, tm_in)
-            VALUES (
-                #{reg_id}, #{tm_fc}, #{tm_ef}, #{tm_in}, #{stn},
-                #{wrn}, #{lvl}, #{cmd}, #{grd}, #{cnt}, CURRENT_TIMESTAMP
+            MERGE weather_warn AS target
+            USING (SELECT 
+                #{reg_id} AS reg_id,
+                #{tm_fc} AS tm_fc,
+                #{tm_ef} AS tm_ef,
+                #{tm_in} AS tm_in,
+                #{stn} AS stn,
+                #{wrn} AS wrn,
+                #{lvl} AS lvl,
+                #{cmd} AS cmd,
+                #{grd} AS grd,
+                #{cnt} AS cnt
+            ) AS source
+            ON (
+                target.reg_id = source.reg_id 
+                AND target.tm_fc = source.tm_fc 
+                AND target.tm_ef = source.tm_ef
+                AND target.tm_in = source.tm_in
             )
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    wrn = source.wrn,
+                    lvl = source.lvl,
+                    cmd = source.cmd,
+                    grd = source.grd,
+                    cnt = source.cnt,
+                    created_at = CURRENT_TIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (reg_id, tm_fc, tm_ef, tm_in, stn, wrn, lvl, cmd, grd, cnt, created_at)
+                VALUES (
+                    source.reg_id, source.tm_fc, source.tm_ef, source.tm_in, 
+                    source.stn, source.wrn, source.lvl, source.cmd, 
+                    source.grd, source.cnt, CURRENT_TIMESTAMP
+                );
         </if>
     </insert>
 </mapper>

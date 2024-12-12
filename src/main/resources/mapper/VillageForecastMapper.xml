@@ -51,11 +51,37 @@
         </if>
 
         <if test="_databaseId == 'mssql'">
-            MERGE INTO short_forecast KEY (nx, ny, fcst_date, fcst_time, category)
-            VALUES (
-                #{nx}, #{ny}, #{fcstDate}, #{fcstTime}, #{category},
-                #{fcstValue}, CURRENT_TIMESTAMP
+            MERGE short_forecast AS target
+            USING (SELECT 
+                #{nx} AS nx,
+                #{ny} AS ny,
+                #{baseDate} AS base_date,
+                #{baseTime} AS base_time,
+                #{fcstDate} AS fcst_date,
+                #{fcstTime} AS fcst_time,
+                #{category} AS category,
+                #{fcstValue} AS fcst_value
+            ) AS source
+            ON (
+                target.nx = source.nx 
+                AND target.ny = source.ny 
+                AND target.fcst_date = source.fcst_date 
+                AND target.fcst_time = source.fcst_time 
+                AND target.category = source.category
             )
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    base_date = source.base_date,
+                    base_time = source.base_time,
+                    fcst_value = source.fcst_value,
+                    created_at = CURRENT_TIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (nx, ny, base_date, base_time, fcst_date, fcst_time, category, fcst_value, created_at)
+                VALUES (
+                    source.nx, source.ny, source.base_date, source.base_time, 
+                    source.fcst_date, source.fcst_time, source.category, 
+                    source.fcst_value, CURRENT_TIMESTAMP
+                );
         </if>
     </insert>
 </mapper>

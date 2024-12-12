@@ -30,13 +30,30 @@
     </insert>
 
     <insert id="mergeIndex" parameterType="map" databaseId="mssql">
-        MERGE INTO environmental_index KEY (code, area_no, fcst_date)
-        VALUES (
-            #{code},
-            #{areaNo},
-            #{fcst_date},
-            #{fcst_value},
-            CURRENT_TIMESTAMP
+        MERGE environmental_index AS target
+        USING (SELECT 
+            #{code} AS code,
+            #{areaNo} AS area_no,
+            #{fcst_date} AS fcst_date,
+            #{fcst_value} AS fcst_value
+        ) AS source
+        ON (
+            target.code = source.code 
+            AND target.area_no = source.area_no 
+            AND target.fcst_date = source.fcst_date
         )
+        WHEN MATCHED THEN
+            UPDATE SET 
+                fcst_value = source.fcst_value,
+                created_at = CURRENT_TIMESTAMP
+        WHEN NOT MATCHED THEN
+            INSERT (code, area_no, fcst_date, fcst_value, created_at)
+            VALUES (
+                source.code,
+                source.area_no,
+                source.fcst_date,
+                source.fcst_value,
+                CURRENT_TIMESTAMP
+            );
     </insert>
 </mapper>
