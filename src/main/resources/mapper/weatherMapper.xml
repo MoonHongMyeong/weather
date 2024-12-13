@@ -32,7 +32,8 @@
            AND ny = #{ny}
            AND fcst_value != '-999'
            AND category IN ('TMP', 'SKY', 'POP', 'PCP')
-           AND fcst_date + fcst_time BETWEEN FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMddHH') AND FORMAT(DATEADD(DAY, 1, dbo.convertToSeoulTime(GETDATE())), 'yyyyMMddHH')
+           AND fcst_date + fcst_time BETWEEN FORMAT(dbo.convertToSeoulTime(GETDATE()), 'yyyyMMddHH')
+                                         AND FORMAT(dbo.convertToSeoulTime(DATEADD(DAY, 1, GETDATE())), 'yyyyMMddHH')
         ORDER BY fcst_date, fcst_time, category;
         ]]>
     </select>
