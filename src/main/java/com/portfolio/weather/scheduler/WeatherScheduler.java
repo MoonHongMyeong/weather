@@ -42,7 +42,7 @@ public class WeatherScheduler {
     /**
      * 중기예보(중기육상예보조회)
      * */
-    @Scheduled(cron = "0 30 6/12 * * *")
+    @Scheduled(cron = "0 15 6/12 * * *")
     public void executeMidLandForecast(){
         for (Location location : Location.values()){
             midFcstInfoService.fetchAndSaveMidLandForecast(location.getUpperRegionId());
@@ -53,7 +53,7 @@ public class WeatherScheduler {
     /**
      * 중기예보(중기기온조회)
      * */
-    @Scheduled(cron = "0 15 6/12 * * *")
+    @Scheduled(cron = "0 30 6 * * *")
     public void executeMidTemperature(){
         for (Location location : Location.values()){
             midFcstInfoService.fetchAndSaveMidTempForecast(location.getRegionId());
