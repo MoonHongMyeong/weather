@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public enum Location {
-    DAEJEON(133, "11C20401", "11C20000", "L1030100", "3000000000", "60", "100");
+    DAEJEON(133, "11C20401", "11C20000", "L1030100", "3000000000", "67", "100");
 
     private int stationId;
     private String regionId;
