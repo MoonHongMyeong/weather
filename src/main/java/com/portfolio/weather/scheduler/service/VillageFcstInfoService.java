@@ -46,6 +46,7 @@ public class VillageFcstInfoService {
                 "&base_time=" + BaseDateTimeUtil.getBaseTime(now) +
                 "&nx=" + nx +
                 "&ny=" + ny;
+        log.info("단기예보 요청 URL : {}", apiUrl);
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
 
         // 2. 응답 파싱
