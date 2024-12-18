@@ -15,6 +15,8 @@ const BACKGROUND_COLOR ={
     'dark': '#001F3F'
 }
 
+let mapMarkers = [];
+
 // API 호출 함수들
 const fetchIndexData = async () => {
     try {
@@ -277,28 +279,33 @@ const setBackground = () => {
     document.body.style.backgroundColor = backgroundColor;
 };
 
+const createMarker = (coordinate, map) => {
+    const marker = L.marker([coordinate.latitude, coordinate.longitude])
+        .addTo(map)
+        .bindPopup(coordinate.dong);
+
+    marker.on('click', async() => {
+        const data = await fetchPopupShortTermForecast(coordinate.nx, coordinate.ny);
+        marker.setPopupContent(renderPopupShortTermForecast(coordinate.dong, data));
+        marker.openPopup();
+    });
+
+    mapMarkers.push(marker);
+    return marker;
+};
+
 window.onload = async () => {
     setBackground();
 
-    const indexData = await fetchIndexData();
+    const [indexData, shortTermForecast, midTermForecast] = await Promise.all([
+        fetchIndexData(),
+        fetchShortTermForecast(),
+        fetchMidTermForecast()
+    ]);
+
     renderIndexData(indexData);
-
-    const shortTermForecast = await fetchShortTermForecast();    
     renderShortTermForecast(shortTermForecast);
-
-    const midTermForecast = await fetchMidTermForecast();
     renderMidTermForecast(midTermForecast);
-
-    const types = ['SATELLITE', 'RADAR', 'LIGHTNING'];
-    for (const type of types) {
-        const imageBlob = await fetchWeatherImages(type);
-        renderWeatherImages(imageBlob, type);
-    };
-
-    const warningInterval = setInterval(async () => {
-        const warnings = await fetchWarnings();
-        renderWarnings(warnings);
-    }, 60000);
 
     try {
         const map = L.map('map', {
@@ -310,77 +317,37 @@ window.onload = async () => {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        GRID_COORDINATES.DAEJEON.DONG.forEach(coordinate => {
-            const marker = L.marker([coordinate.latitude, coordinate.longitude])
-                .addTo(map)
-                .bindPopup(coordinate.dong);
-
-            marker.on('click', async() => {
-                const data = await fetchPopupShortTermForecast(coordinate.nx, coordinate.ny);
-                marker.setPopupContent(renderPopupShortTermForecast(coordinate.dong,data));
-                marker.openPopup();
+        Object.values(GRID_COORDINATES.DAEJEON).forEach(district => {
+            district.forEach(coordinate => {
+                createMarker(coordinate, map);
             });
         });
 
-        GRID_COORDINATES.DAEJEON.JUNG.forEach(coordinate => {
-            const marker = L.marker([coordinate.latitude, coordinate.longitude])
-                .addTo(map)
-                .bindPopup(coordinate.dong);
-
-            marker.on('click', async() => {
-                const data = await fetchPopupShortTermForecast(coordinate.nx, coordinate.ny);
-                marker.setPopupContent(renderPopupShortTermForecast(coordinate.dong,data));
-                marker.openPopup();
-            });
-        });
-
-        GRID_COORDINATES.DAEJEON.YUSEONG.forEach(coordinate => {
-            const marker = L.marker([coordinate.latitude, coordinate.longitude])
-                .addTo(map)
-                .bindPopup(coordinate.dong);
-
-            marker.on('click', async() => {
-                const data = await fetchPopupShortTermForecast(coordinate.nx, coordinate.ny);
-                marker.setPopupContent(renderPopupShortTermForecast(coordinate.dong,data));
-                marker.openPopup();
-            });
-        });
-
-        GRID_COORDINATES.DAEJEON.SEO.forEach(coordinate => {    
-            const marker = L.marker([coordinate.latitude, coordinate.longitude])
-                .addTo(map)
-                .bindPopup(coordinate.dong);
-
-            marker.on('click', async() => {
-                const data = await fetchPopupShortTermForecast(coordinate.nx, coordinate.ny);
-                marker.setPopupContent(renderPopupShortTermForecast(coordinate.dong,data));
-                marker.openPopup();
-            });
-        });
-
-        GRID_COORDINATES.DAEJEON.DAEDEOK.forEach(coordinate => {
-            const marker = L.marker([coordinate.latitude, coordinate.longitude])
-                .addTo(map)
-                .bindPopup(coordinate.dong);
-
-            marker.on('click', async() => {
-                const data = await fetchPopupShortTermForecast(coordinate.nx, coordinate.ny);
-                marker.setPopupContent(renderPopupShortTermForecast(coordinate.dong,data));
-                marker.openPopup();
-            });
-        });
-        
         setTimeout(() => {
             map.invalidateSize();
         }, 100);
     } catch (error) {
         console.error('Map initialization error:', error);
     }
+
+    const types = ['SATELLITE', 'RADAR', 'LIGHTNING'];
+    Promise.all(types.map(async type => {
+        const imageBlob = await fetchWeatherImages(type);
+        renderWeatherImages(imageBlob, type);
+    }));
+
+    window.warningInterval = setInterval(async () => {
+        const warnings = await fetchWarnings();
+        renderWarnings(warnings);
+    }, 60000);
 };
 
 window.addEventListener('beforeunload', () => {
     if (window.warningInterval) {
         clearInterval(window.warningInterval);
     }
+
+    mapMarkers.forEach(marker => marker.remove());
+    mapMarkers = [];
 });
 
