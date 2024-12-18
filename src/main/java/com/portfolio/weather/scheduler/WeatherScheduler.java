@@ -25,7 +25,7 @@ public class WeatherScheduler {
      * - 발표시각 02:00, 05:00, 08:00, 11:00, 14:00, 17:00, 20:00, 23:00 (1일 8회)
      * - API 제공 시간(~이후) : 02:10, 05:10, 08:10, 11:10, 14:10, 17:10, 20:10, 23:10
      * */ 
-    @Scheduled(cron = "0 13 2/3 * * *")
+    @Scheduled(cron = "0 13 2/12 * * *")
     public void executeVillageForecast(){
         // 대전시 모든 좌표에 대해 예보 조회
         for (DaejeonCoordinate coord : DaejeonCoordinate.values()) {
@@ -64,7 +64,7 @@ public class WeatherScheduler {
     /**
      * 기상특보
      */
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 */12 * * *")
     public void executeWeatherWarning(){
         for (Location location : Location.values()){
             wthrWrnService.fetchAndSaveWeatherWarning(location.getWarnRegionId());
@@ -75,7 +75,7 @@ public class WeatherScheduler {
     /**
      * 자외선 지수
      */
-    @Scheduled(cron = "0 5 0/3 * * *")
+    @Scheduled(cron = "0 5 0 * * *")
     public void executeUvIndex(){
         for (Location location : Location.values()){
             indexService.fetchAndSaveUvIndex(location.getAreaNo());
@@ -85,7 +85,7 @@ public class WeatherScheduler {
     /**
      * 대기정체지수
      */
-    @Scheduled(cron = "0 8 0/3 * * *")
+    @Scheduled(cron = "0 8 0 * * *")
     public void executeAirDiffusionIndex(){
         for (Location location : Location.values()){
             indexService.fetchAndSaveAirDiffusionIndex(location.getAreaNo());
